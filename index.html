@@ -3,8 +3,9 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ARAM Mayhem 台版增幅速查表（全英雄＋縮圖）</title>
-  <meta name="description" content="英雄聯盟 ARAM: Mayhem 增幅（Augments）依英雄類型的互動速查表（台版用語介面），自動載入全英雄與縮圖。單檔可直接部署至 GitHub Pages / Cloudflare Pages。">
+  <title>ARAM Mayhem 台版增幅速查表（全英雄＋縮圖＋增幅總覽）</title>
+  <meta name="description" content="英雄聯盟 ARAM: Mayhem 增幅（Augments）依英雄類型的互動速查表（台版用語介面），自動載入全英雄與縮圖，並提供增幅總覽與高亮推薦。">
+
   <style>
     :root{
       --bg:#0a0d16; --panel:#10162b; --muted:#9bb1da;
@@ -32,7 +33,7 @@
     .wrap{max-width:1120px; margin:0 auto; padding:0 16px}
     h1{font-size: clamp(18px, 2.8vw, 28px); margin: 2px 0 4px; letter-spacing:.3px}
     .sub{color:var(--muted); font-size:12px}
-    .row{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap} /* 防重疊 */
+    .row{display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap}
     .btn{border:1px solid var(--line-2); background:#0c1122; color:#e6edff; padding:10px 14px; border-radius:12px; cursor:pointer; box-shadow:0 2px 10px rgba(0,224,255,.08)}
     .btn:hover{border-color:var(--accent); box-shadow:0 4px 18px rgba(0,224,255,.18)}
     .badge{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line-2); padding:3px 8px; border-radius:999px; font-size:11px; color:#cfe2ff}
@@ -44,28 +45,25 @@
     .section-title{font-weight:700; letter-spacing:.2px; margin:0 0 10px}
     .tip{color:var(--muted); font-size:12px}
     .field{display:block; width:100%; padding:12px; border-radius:12px; border:1px solid var(--line); background:#0c1122; color:#e6edff}
-    .pill{border:1px solid var(--line); padding:4px 8px; border-radius:12px; font-size:12px; background:#0c1122}
+    .pill{border:1px solid var(--line); padding:6px 10px; border-radius:999px; background:#0c1122; font-size:12px}
+    .pill.active{ border-color: var(--accent); box-shadow: 0 0 0 2px rgba(0,224,255,.15) inset }
     .tap{min-height:44px; display:flex; align-items:center}
     .page{display:grid; grid-template-columns:1fr; gap:16px; margin:14px 0}
     @media (min-width: 1024px){ .page{grid-template-columns: 360px 1fr}}
     .list{display:grid; gap:10px}
     .role-chip{border:1px solid var(--line); border-radius:14px; padding:10px; background: linear-gradient(180deg, #10162b, #0d1325); cursor:pointer}
     .role-chip.active{outline:2px solid var(--accent); box-shadow: 0 0 0 4px rgba(0,224,255,.12)}
-    .hero-grid{
-      display:grid; gap:10px;
-      grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));  /* 防擁擠重疊 */
-    }
-    .hero{
-      display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center;
-      border:1px solid var(--line); border-radius:12px; padding:10px; background: #0b1021; cursor:pointer
-    }
-    .hero:hover{border-color:var(--accent)}
-    .hero img{
-      width:80px; aspect-ratio:1/1; border-radius:10px; display:block; background:#0d1430; object-fit:cover;
-      image-rendering:auto
-    }
-    .hero .nm{font-size:12px; line-height:1.2; word-break: break-word}
-    .hero .en{font-size:10px; color:var(--muted)}
+    .accent-line{height:1px; background:linear-gradient(90deg, transparent, var(--accent), transparent); margin:10px 0 12px}
+
+    /* 英雄網格 */
+    .hero-grid{ display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr)) }
+    .hero{ display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center; border:1px solid var(--line); border-radius:12px; padding:10px; background:#0b1021; cursor:pointer }
+    .hero:hover{ border-color: var(--accent) }
+    .hero img{ width:80px; aspect-ratio:1/1; border-radius:10px; display:block; background:#0d1430; object-fit:cover }
+    .hero .nm{ font-size:12px; line-height:1.2; word-break: break-word }
+    .hero .en{ font-size:10px; color:var(--muted) }
+
+    /* 四輪推薦 */
     .round-card .picks{display:grid; grid-template-columns:1fr; gap:8px}
     @media (min-width: 680px){ .round-card .picks{grid-template-columns: repeat(3, 1fr)}}
     .pick{border:1px solid var(--line); background:#0c1122; border-radius:12px; padding:10px}
@@ -77,7 +75,18 @@
       background:#000; color:#fff; font-size:11px; border-radius:6px; padding:4px 6px; z-index:30; max-width:240px; white-space:nowrap; pointer-events:none
     }
     .tt:hover .ttip{opacity:1; transform: translate(-50%, 4px)}
-    .accent-line{height:1px; background:linear-gradient(90deg, transparent, var(--accent), transparent); margin:10px 0 12px}
+
+    /* 增幅總覽 */
+    .aug-grid { display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(240px,1fr)); }
+    .aug-card { border:1px solid var(--line); background:#0c1122; border-radius:12px; padding:10px; display:flex; flex-direction:column; gap:6px }
+    .aug-card .head{ display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap }
+    .tier-chip { font-size:11px; border:1px solid var(--line-2); border-radius:999px; padding:2px 6px }
+    .tier-silver{ background:#182036 }
+    .tier-gold{ background:#2a240f; color:#ffe8a6; border-color:#5d4a19 }
+    .tier-prismatic{ background:#241230; color:#e7d0ff; border-color:#5a2a9a }
+    .is-rec { outline:2px solid var(--accent-2); box-shadow: 0 0 0 4px rgba(255,61,120,.15) }
+    .rec-badge { font-size:11px; color:#ff9bb6 }
+
     .footer{color:#9bb1da; font-size:11px; text-align:center; padding:16px 0 32px}
     @media (prefers-reduced-motion: reduce){ .ttip{transition:none} .btn{transition:none}}
   </style>
@@ -87,7 +96,7 @@
     <div class="wrap row">
       <div>
         <h1>ARAM Mayhem 台版增幅速查表</h1>
-        <div class="sub">全英雄（繁中名＋縮圖）／全增幅（台版暫譯＋英名 tooltip）／行動優化／電競風</div>
+        <div class="sub">全英雄（繁中名＋縮圖）／全增幅總覽（台版暫譯＋英名 tooltip）／行動優化／電競風</div>
       </div>
       <div class="row" style="gap:8px">
         <button class="btn" id="copyBtn">複製當前方案</button>
@@ -112,13 +121,12 @@
       <div class="accent-line"></div>
       <div class="tip">
         • 英雄繁中名自 Riot Data Dragon（自動抓最新版）<br/>
-        • 縮圖優先 OP.GG，失敗退回 DDragon<br/>
-        • 增幅中文為功能性台版暫譯，英名可懸浮檢視<br/>
-        • 第 3 輪可能為金/棱彩，請依候選彈性取捨
+        • 縮圖優先 OP.GG（失敗退回 DDragon）<br/>
+        • 增幅中文為功能性台版暫譯，英名可懸浮檢視
       </div>
     </aside>
 
-    <!-- 右：方案 -->
+    <!-- 右：方案＋增幅總覽 -->
     <section class="grid" style="gap:16px">
       <div class="card pad">
         <div class="row">
@@ -135,10 +143,33 @@
       </div>
 
       <div class="grid" id="rounds" style="gap:16px"></div>
+
+      <!-- 增幅總覽（預設顯示全部；切換類型時高亮推薦） -->
+      <div class="card pad" id="augCatalog">
+        <div class="row">
+          <div>
+            <div class="section-title">增幅總覽</div>
+            <div class="tip">預設顯示全部；切換英雄類型時，高亮推薦增幅。可用搜尋與分級快速過濾。</div>
+          </div>
+          <div class="row" style="gap:8px;flex-wrap:wrap">
+            <input class="field" id="augSearch" placeholder="搜尋增幅名稱或效果關鍵字…" style="width:240px;max-width:100%">
+            <button class="btn pill active" data-tier="all">全部</button>
+            <button class="btn pill" data-tier="silver">銀</button>
+            <button class="btn pill" data-tier="gold">金</button>
+            <button class="btn pill" data-tier="prismatic">棱彩</button>
+            <label class="tap" style="gap:6px">
+              <input type="checkbox" id="onlyRec">
+              <span class="tip">僅顯示推薦</span>
+            </label>
+          </div>
+        </div>
+        <div class="accent-line"></div>
+        <div id="augGrid" class="aug-grid" aria-live="polite"></div>
+      </div>
     </section>
   </main>
 
-  <div class="footer">資料僅供參考；實裝以遊戲內為準。來源：Mobalytics、OP.GG、Riot Data Dragon。</div>
+  <div class="footer">資料僅供參考；實裝以遊戲內為準。來源：Mobalytics（Augments 清單）、OP.GG（縮圖）、Riot Data Dragon（英雄名）。</div>
 
   <script>
     // ======= 角色與顏色 =======
@@ -153,7 +184,10 @@
     const TAG2ROLE = { Mage:'mage', Assassin:'assassin', Tank:'tank', Marksman:'adc', Support:'support', Fighter:'fighter' };
 
     // ======= 狀態 =======
-    const state = { role:'mage', heroKey:null, heroNameTw:null, version:null, champions:[] };
+    const state = {
+      role:'mage', heroKey:null, heroNameTw:null, version:null, champions:[],
+      augFilter: { tier: 'all', onlyRec: false, q: '' },
+    };
 
     // ======= 英雄載入（DDragon zh_TW） =======
     function deriveOpggName(imageFull){
@@ -184,178 +218,177 @@
       renderAll();
     }
 
-// ======= 增幅資料（台版暫譯；全部含 note） =======
-const AUGMENTS = [
-  // ---------- Silver ----------
-  {en:'ADAPt',               tw:'AD 轉術',            tier:'silver',  note:'將部分 AD 轉為 AP，並獲額外 AP，適合混傷路線。'},
-  {en:'Adamant',             tw:'鋼鐵意志',            tier:'silver',  note:'每次使敵人定身/禁錮，獲可疊加的護甲與魔抗（持續 10 秒）。'},
-  {en:'Blunt Force',         tw:'鈍力壓制',            tier:'silver',  note:'攻擊力 +15%。'},
-  {en:'Buff Buddies',        tw:'增益夥伴',            tier:'silver',  note:'同時獲得紅藍 Buff。'},
-  {en:'Deft',                tw:'身手敏捷',            tier:'silver',  note:'攻速 +60%。'},
-  {en:'Dive Bomber',         tw:'殉爆轟擊',            tier:'silver',  note:'死亡時以你最大生命的百分比對附近敵人造成真傷爆炸。'},
-  {en:"Don’t Blink",         tw:'別眨眼',              tier:'silver',  note:'你比目標更快時，依移速差額外造成傷害（跑得越快越痛）。'},
-  {en:'Erosion',             tw:'侵蝕',                tier:'silver',  note:'對敵人造成傷害會疊加破甲/破魔（最多 30%）。'},
-  {en:'Escape Plan',         tw:'緊急應變',            tier:'silver',  note:'生命值 ≤35% 時觸發大型衰減護盾、移速與縮小效果（冷卻）。'},
-  {en:'Fetch',               tw:'雪球支援',            tier:'silver',  note:'對雪球標記的敵人獲移速，可撿取隊友的雪球刷新自身。'},
-  {en:'First Aid Kit',       tw:'急救包',              tier:'silver',  note:'治癒與護盾效果 +20%。'},
-  {en:'Flash 2',             tw:'雙閃',                tier:'silver',  note:'獲得第二個「閃現」。'},
-  {en:'Flashbang',           tw:'閃光震撼',            tier:'silver',  note:'閃現會在落點造成範圍傷害與 35% 緩速；每次死亡重置充能。'},
-  {en:'Frost Wraith',        tw:'霜魂幽縛',            tier:'silver',  note:'每 6.5 秒自動對 450 範圍內敵人施加 1.25 秒定根。'},
-  {en:'Goredrink',           tw:'嗜血鍊鋸',            tier:'silver',  note:'全能吸血 +15%。'},
-  {en:'Guilty Pleasure',     tw:'罪惡快感',            tier:'silver',  note:'使敵人定身/禁錮時，依最大生命回復生命。'},
-  {en:'Hat on a Hat',        tw:'帽上加帽',            tier:'silver',  note:'頭飾/帽類道具提升 AP 與 MR；Cappa Juice 提供小量屬性。'},
-  {en:'Heavy Hitter',        tw:'重拳出擊',            tier:'silver',  note:'普攻額外造成目標最大生命的百分比物理傷害。'},
-  {en:'Homeguard',           tw:'回城疾走',            tier:'silver',  note:'移速 +100%，但受傷後 3 秒內失效。'},
-  {en:'Ice Cold',            tw:'極寒',                tier:'silver',  note:'你的緩速額外 -100 移動速度。'},
-  {en:'Infernal Soul',       tw:'煉獄龍魂',            tier:'silver',  note:'獲得煉獄龍魂的灼燒/爆炸效果。'},
-  {en:'Leg Day',             tw:'腿日',                tier:'silver',  note:'移速 +50、緩速抗性 +40%。'},
-  {en:"Light ’em Up",        tw:'點燃它們',            tier:'silver',  note:'每第 4 次普攻追加可觀的魔法傷害（隨 AD/AP 成長）。'},
-  {en:'Mighty Shield',       tw:'護盾激勵',            tier:'silver',  note:'獲得護盾時短時間提升自適應力（冷卻 5 秒）。'},
-  {en:'Mind to Matter',      tw:'法轉體',              tier:'silver',  note:'獲得等於總法力 50% 的生命值。'},
-  {en:'Mountain Soul',       tw:'山脈龍魂',            tier:'silver',  note:'獲得山脈龍魂的護盾效果。'},
-  {en:'Ocean Soul',          tw:'海洋龍魂',            tier:'silver',  note:'獲得海洋龍魂的回復效果。'},
-  {en:'Poltergeist',         tw:'靈魅疾行',            tier:'silver',  note:'獲召喚師法術「Poltergeist」：同時施放屏障與鬼步。'},
-  {en:'ReEnergize',          tw:'充能迴路',            tier:'silver',  note:'更換攻擊目標會重置 Energized；並對新目標造成依其當前生命%的額外魔傷。'},
-  {en:'Repulsor',            tw:'彈反力場',            tier:'silver',  note:'生命值降至 60%/30% 時，擊退附近敵人各一次。'},
-  {en:'Scoped Weapons',      tw:'神射手',              tier:'silver',  note:'近戰 +75 射程；遠程 +50 射程。'},
-  {en:'Self Destruct',       tw:'自爆通勤',            tier:'silver',  note:'穿越傳送門/地道後綁定炸彈，5 秒後爆炸造成最大生命%真傷並擊飛。'},
-  {en:'Shadow Runner',       tw:'影行者',              tier:'silver',  note:'位移/閃現/脫離隱形後獲得 +300 移速（2 秒）。'},
-  {en:'Slap Around',         tw:'巴掌舞',              tier:'silver',  note:'定身敵人時疊自適應力；死亡失去 50% 層數。'},
-  {en:'Sonic Boom',          tw:'音爆共鳴',            tier:'silver',  note:'對友方施放治/盾/增益時，友方周圍敵人受真傷並被緩速（2 秒冷卻）。'},
-  {en:'Spin to Win',         tw:'旋風制勝',            tier:'silver',  note:'「旋轉類」技能 +30 技能急速、+30% 傷害。'},
-  {en:'Swift and Safe',      tw:'疾衝護身',            tier:'silver',  note:'位移或閃現後獲得可觀護盾（3 秒，冷卻 5 秒）。'},
-  {en:'Tank It or Leave It', tw:'要坦就坦',            tier:'silver',  note:'將暴擊率轉為「格擋幾率」，最多 50% 觸發 20% 減傷。'},
-  {en:'The Brutalizer',      tw:'殘暴者',              tier:'silver',  note:'攻擊力 +20、技能急速 +10、穿甲 +5。'},
-  {en:'Tormentor',           tw:'折磨者',              tier:'silver',  note:'對被定身/禁錮的敵人施加無限疊的灼燒。'},
-  {en:'Transmute: Gold',     tw:'轉化：金',            tier:'silver',  note:'獲得隨機「金色」增幅。'},
-  {en:'Trailblazer',         tw:'開路先鋒',            tier:'silver',  note:'參與擊殺後獲移速與回線效率（方便重返戰場）。'},
-  {en:'Typhoon',             tw:'颶風箭幕',            tier:'silver',  note:'普攻再向另一名敵人發射一道彈體，造成 tAD 30% 物傷並套用 on‑hit。'},
-  {en:'Ultimate Unstoppable',tw:'究極不屈',            tier:'silver',  note:'施放大招後短暫免疫控場（8 秒冷卻）。'},
-  {en:'Upgrade Cutlass',     tw:'升級短劍',            tier:'silver',  note:'幽靈短劍/救命被動冷卻降至 30 秒；啟動時 +15% 傷害。'},
-  {en:'Upgrade Immolate',    tw:'升級灼燒',            tier:'silver',  note:'立即 +250g；日炎/中空輻耀的灼燒每跳每目標 +10g。'},
-  {en:"Upgrade Zhonya’s",    tw:'升級中婭',            tier:'silver',  note:'中婭冷卻 90 秒，時停中可移動（含巫妖帽/布甲）。'},
-  {en:'Upgrade Collector',   tw:'升級收藏家',          tier:'silver',  note:'立即 +250g；收藏家處決提高門檻 +0.25%，且處決 +50g。'},
-  {en:'Veil of Warding',     tw:'驅咒之幕',            tier:'silver',  note:'獲得可格擋下一個敵方技能的法術護盾（15 秒冷卻）。'},
-  {en:'Virtuous Cycle',      tw:'善循環',              tier:'silver',  note:'你的治癒額外 20% 轉為護盾；護盾額外 20% 轉為治癒。'},
-  {en:'Wind Beneath Blade',  tw:'風馭之刃',            tier:'silver',  note:'每 1 點穿甲/穿魔 +1.5 移速；每 10% 百分比穿甲/穿魔 +5 移速。'},
-  {en:'Witchful Thinking',   tw:'術力滿點',            tier:'silver',  note:'+AP（20~80，隨等級）。'},
-  {en:'escAPADe',            tw:'術轉攻',              tier:'silver',  note:'將 60% AP 轉為 AD，並 +15% AD。'},
-  {en:'Warm-Up Routine',     tw:'熱身常規',            tier:'silver',  note:'每 10 秒獲短時間疊加的全屬性加成（可堆疊）。'},
+    // ======= 增幅資料（台版暫譯；全部含 note） =======
+    const AUGMENTS = [
+      // ---------- Silver ----------
+      {en:'ADAPt',               tw:'AD 轉術',            tier:'silver',  note:'將部分 AD 轉為 AP，並獲額外 AP，適合混傷路線。'},
+      {en:'Adamant',             tw:'鋼鐵意志',            tier:'silver',  note:'每次使敵人定身/禁錮，獲可疊加的護甲與魔抗（持續 10 秒）。'},
+      {en:'Blunt Force',         tw:'鈍力壓制',            tier:'silver',  note:'攻擊力 +15%。'},
+      {en:'Buff Buddies',        tw:'增益夥伴',            tier:'silver',  note:'同時獲得紅藍 Buff。'},
+      {en:'Deft',                tw:'身手敏捷',            tier:'silver',  note:'攻速 +60%。'},
+      {en:'Dive Bomber',         tw:'殉爆轟擊',            tier:'silver',  note:'死亡時以你最大生命的百分比對附近敵人造成真傷爆炸。'},
+      {en:"Don’t Blink",         tw:'別眨眼',              tier:'silver',  note:'你比目標更快時，依移速差額外造成傷害（跑得越快越痛）。'},
+      {en:'Erosion',             tw:'侵蝕',                tier:'silver',  note:'對敵人造成傷害會疊加破甲/破魔（最多 30%）。'},
+      {en:'Escape Plan',         tw:'緊急應變',            tier:'silver',  note:'生命值 ≤35% 時觸發大型衰減護盾、移速與縮小效果（冷卻）。'},
+      {en:'Fetch',               tw:'雪球支援',            tier:'silver',  note:'對雪球標記的敵人獲移速，可撿取隊友的雪球刷新自身。'},
+      {en:'First Aid Kit',       tw:'急救包',              tier:'silver',  note:'治癒與護盾效果 +20%。'},
+      {en:'Flash 2',             tw:'雙閃',                tier:'silver',  note:'獲得第二個「閃現」。'},
+      {en:'Flashbang',           tw:'閃光震撼',            tier:'silver',  note:'閃現會在落點造成範圍傷害與 35% 緩速；每次死亡重置充能。'},
+      {en:'Frost Wraith',        tw:'霜魂幽縛',            tier:'silver',  note:'每 6.5 秒自動對 450 範圍內敵人施加 1.25 秒定根。'},
+      {en:'Goredrink',           tw:'嗜血鍊鋸',            tier:'silver',  note:'全能吸血 +15%。'},
+      {en:'Guilty Pleasure',     tw:'罪惡快感',            tier:'silver',  note:'使敵人定身/禁錮時，依最大生命回復生命。'},
+      {en:'Hat on a Hat',        tw:'帽上加帽',            tier:'silver',  note:'頭飾/帽類道具提升 AP 與 MR；Cappa Juice 提供小量屬性。'},
+      {en:'Heavy Hitter',        tw:'重拳出擊',            tier:'silver',  note:'普攻額外造成目標最大生命的百分比物理傷害。'},
+      {en:'Homeguard',           tw:'回城疾走',            tier:'silver',  note:'移速 +100%，但受傷後 3 秒內失效。'},
+      {en:'Ice Cold',            tw:'極寒',                tier:'silver',  note:'你的緩速額外 -100 移動速度。'},
+      {en:'Infernal Soul',       tw:'煉獄龍魂',            tier:'silver',  note:'獲得煉獄龍魂的灼燒/爆炸效果。'},
+      {en:'Leg Day',             tw:'腿日',                tier:'silver',  note:'移速 +50、緩速抗性 +40%。'},
+      {en:"Light ’em Up",        tw:'點燃它們',            tier:'silver',  note:'每第 4 次普攻追加可觀的魔法傷害（隨 AD/AP 成長）。'},
+      {en:'Mighty Shield',       tw:'護盾激勵',            tier:'silver',  note:'獲得護盾時短時間提升自適應力（冷卻 5 秒）。'},
+      {en:'Mind to Matter',      tw:'法轉體',              tier:'silver',  note:'獲得等於總法力 50% 的生命值。'},
+      {en:'Mountain Soul',       tw:'山脈龍魂',            tier:'silver',  note:'獲得山脈龍魂的護盾效果。'},
+      {en:'Ocean Soul',          tw:'海洋龍魂',            tier:'silver',  note:'獲得海洋龍魂的回復效果。'},
+      {en:'Poltergeist',         tw:'靈魅疾行',            tier:'silver',  note:'獲召喚師法術「Poltergeist」：同時施放屏障與鬼步。'},
+      {en:'ReEnergize',          tw:'充能迴路',            tier:'silver',  note:'更換攻擊目標會重置 Energized；並對新目標造成依其當前生命%的額外魔傷。'},
+      {en:'Repulsor',            tw:'彈反力場',            tier:'silver',  note:'生命值降至 60%/30% 時，擊退附近敵人各一次。'},
+      {en:'Scoped Weapons',      tw:'神射手',              tier:'silver',  note:'近戰 +75 射程；遠程 +50 射程。'},
+      {en:'Self Destruct',       tw:'自爆通勤',            tier:'silver',  note:'穿越傳送門/地道後綁定炸彈，5 秒後爆炸造成最大生命%真傷並擊飛。'},
+      {en:'Shadow Runner',       tw:'影行者',              tier:'silver',  note:'位移/閃現/脫離隱形後獲得 +300 移速（2 秒）。'},
+      {en:'Slap Around',         tw:'巴掌舞',              tier:'silver',  note:'定身敵人時疊自適應力；死亡失去 50% 層數。'},
+      {en:'Sonic Boom',          tw:'音爆共鳴',            tier:'silver',  note:'對友方施放治/盾/增益時，友方周圍敵人受真傷並被緩速（2 秒冷卻）。'},
+      {en:'Spin to Win',         tw:'旋風制勝',            tier:'silver',  note:'「旋轉類」技能 +30 技能急速、+30% 傷害。'},
+      {en:'Swift and Safe',      tw:'疾衝護身',            tier:'silver',  note:'位移或閃現後獲得可觀護盾（3 秒，冷卻 5 秒）。'},
+      {en:'Tank It or Leave It', tw:'要坦就坦',            tier:'silver',  note:'將暴擊率轉為「格擋幾率」，最多 50% 觸發 20% 減傷。'},
+      {en:'The Brutalizer',      tw:'殘暴者',              tier:'silver',  note:'攻擊力 +20、技能急速 +10、穿甲 +5。'},
+      {en:'Tormentor',           tw:'折磨者',              tier:'silver',  note:'對被定身/禁錮的敵人施加無限疊的灼燒。'},
+      {en:'Transmute: Gold',     tw:'轉化：金',            tier:'silver',  note:'獲得隨機「金色」增幅。'},
+      {en:'Trailblazer',         tw:'開路先鋒',            tier:'silver',  note:'參與擊殺後獲移速與回線效率（方便重返戰場）。'},
+      {en:'Typhoon',             tw:'颶風箭幕',            tier:'silver',  note:'普攻再向另一名敵人發射一道彈體，造成 tAD 30% 物傷並套用 on-hit。'},
+      {en:'Ultimate Unstoppable',tw:'究極不屈',            tier:'silver',  note:'施放大招後短暫免疫控場（8 秒冷卻）。'},
+      {en:'Upgrade Cutlass',     tw:'升級短劍',            tier:'silver',  note:'幽靈短劍/救命被動冷卻降至 30 秒；啟動時 +15% 傷害。'},
+      {en:'Upgrade Immolate',    tw:'升級灼燒',            tier:'silver',  note:'立即 +250g；日炎/中空輻耀的灼燒每跳每目標 +10g。'},
+      {en:"Upgrade Zhonya’s",    tw:'升級中婭',            tier:'silver',  note:'中婭冷卻 90 秒，時停中可移動（含巫妖帽/布甲）。'},
+      {en:'Upgrade Collector',   tw:'升級收藏家',          tier:'silver',  note:'立即 +250g；收藏家處決提高門檻 +0.25%，且處決 +50g。'},
+      {en:'Veil of Warding',     tw:'驅咒之幕',            tier:'silver',  note:'獲得可格擋下一個敵方技能的法術護盾（15 秒冷卻）。'},
+      {en:'Virtuous Cycle',      tw:'善循環',              tier:'silver',  note:'你的治癒額外 20% 轉為護盾；護盾額外 20% 轉為治癒。'},
+      {en:'Wind Beneath Blade',  tw:'風馭之刃',            tier:'silver',  note:'每 1 點穿甲/穿魔 +1.5 移速；每 10% 百分比穿甲/穿魔 +5 移速。'},
+      {en:'Witchful Thinking',   tw:'術力滿點',            tier:'silver',  note:'+AP（20~80，隨等級）。'},
+      {en:'escAPADe',            tw:'術轉攻',              tier:'silver',  note:'將 60% AP 轉為 AD，並 +15% AD。'},
+      {en:'Warm-Up Routine',     tw:'熱身常規',            tier:'silver',  note:'每 10 秒獲短時間疊加的全屬性加成（可堆疊）。'},
 
-  // ---------- Gold ----------
-  {en:'All for You',         tw:'全力支援',            tier:'gold',    note:'你給隊友的治癒/護盾量 +30%。'},
-  {en:'Apex Inventor',       tw:'頂尖工匠',            tier:'gold',    note:'裝備急速 +100。'},
-  {en:'Big Brain',           tw:'大腦袋',              tier:'gold',    note:'獲得等同 AP 的護盾；你死亡時重置。'},
-  {en:'Bread and Butter',    tw:'麵包與奶油',          tier:'gold',    note:'+100 Q 技能急速。'},
-  {en:'Bread and Cheese',    tw:'麵包與起司',          tier:'gold',    note:'+100 E 技能急速。'},
-  {en:'Bread and Jam',       tw:'麵包與果醬',          tier:'gold',    note:'+100 W 技能急速。'},
-  {en:'Bread Sandwich',      tw:'終極三明治',          tier:'gold',    note:'若你持有三個 Bread 類增幅 → +250 終極急速，另 Q/W/E 各 +50 急速。'},
-  {en:'Celestial Body',      tw:'天體之軀',            tier:'gold',    note:'+1250 生命值，但造成的傷害 -10%。'},
-  {en:'Cheating',            tw:'作弊回城',            tier:'gold',    note:'可使用「回城」購物與抽增幅（ARAM 特規）。'},
-  {en:'Chain Lightning',     tw:'連鎖閃電',            tier:'gold',    note:'傷害會彈向附近另一名敵人（群戰增傷極佳）。'},
-  {en:'Critical Healing',    tw:'致療一擊',            tier:'gold',    note:'暴擊率 +25%；你的治癒/護盾可「暴擊」提高 40% 效果。'},
-  {en:'Critical Rhythm',     tw:'致命節奏*',           tier:'gold',    note:'暴擊會給予攻速（每次 +6%，最多 10 層）。'},
-  {en:"Dawnbringer’s Resolve",tw:'黎明守護',           tier:'gold',    note:'生命 ≤50% 時 3 秒回復 30% 最大生命（45 秒冷卻，死亡重置）。'},
-  {en:"Demon’s Dance",       tw:'惡魔之舞',            tier:'gold',    note:'同時獲得「迅捷步法」與「不死之握」兩個關鍵符文。'},
-  {en:'Divine Intervention',  tw:'神聖干預',           tier:'gold',    note:'15 秒後降下星幕，落地給你與附近友軍 2.5 秒無敵（35 秒冷卻）。'},
-  {en:'Ethereal Weapon',     tw:'以太武裝',            tier:'gold',    note:'技能可觸發 on‑hit（每個目標各自 1 秒冷卻）。'},
-  {en:'Executioner',         tw:'處決者',              tier:'gold',    note:'對生命 <30% 的敵人造成 +10% 傷害；擊殺後重置小技能。'},
-  {en:'Firebrand',           tw:'火印',                tier:'gold',    note:'普攻造成 0.4% 最大生命的灼燒（可疊）。'},
-  {en:'Flashy',              tw:'閃現達人',            tier:'gold',    note:'閃現改為 3 發彈藥、2 秒冷卻（彈藥 180 秒回充）。'},
-  {en:'From Beginning to End',tw:'始終如一',           tier:'gold',    note:'同時獲得「先攻」與「黑暗收割」。'},
-  {en:'Get Excited',         tw:'我超嗨',              tier:'gold',    note:'擊殺後 4 秒內獲 +100% 移速與 +15% 攻速。'},
-  {en:'Holy Fire',           tw:'聖焰灼身',            tier:'gold',    note:'你對友方的治/盾會對 650 範圍內最近敵人施加 1%–4% 最大生命的灼燒（可疊）。'},
-  {en:'Impassable',          tw:'冰霜壁壘',            tier:'gold',    note:'同時獲得「餘震」與「冰川強襲」。'},
-  {en:"It’s Critical",       tw:'就是要爆',            tier:'gold',    note:'暴擊率 +50%。'},
-  {en:"It’s Killing Time",   tw:'屠戮時刻',            tier:'gold',    note:'施放大招後標記所有敵人，5 秒後依儲存傷害引爆（8 秒冷卻）。'},
-  {en:'Keystone Conjurer',   tw:'召喚雙符',            tier:'gold',    note:'同時獲得「召喚艾莉」與「秘能彗星」。'},
-  {en:'Lightning Strikes',   tw:'電光連擊',            tier:'gold',    note:'攻速 +20%；達 4.0 AS 時，每次普攻追加 40 魔傷 on‑hit。'},
-  {en:'Magic Missile',       tw:'魔彈齊發',            tier:'gold',    note:'技能命中會射出 3 發魔彈；每發依距離造成 0.33%–1% 目標最大生命的真傷（6 秒同源冷卻）。'},
-  {en:'Marksmage',           tw:'射術法師',            tier:'gold',    note:'普攻追加（75% AP）係數的物理傷害。'},
-  {en:'Minionmancer',        tw:'傀儡增幅',            tier:'gold',    note:'召喚物的體型、生命與傷害 +40%。'},
-  {en:'Nightstalking',       tw:'夜行者',              tier:'gold',    note:'3 秒內參與擊殺 → 獲 1.5 秒隱形。'},
-  {en:'Ok Boomerang',        tw:'OK 迴旋鏢',           tier:'gold',    note:'每 10 秒自動對附近敵人投擲迴旋鏢，造成 (40–200 + 30% bAD + 20% AP) 自適應傷害。'},
-  {en:"Outlaw’s Grit",       tw:'亡命之志',            tier:'gold',    note:'位移/閃現/傳送後 +雙抗，最多疊 5 次（每層 15 秒）。'},
-  {en:'Overflow',            tw:'溢流',                tier:'gold',    note:'耗魔翻倍；技能治癒/護盾/傷害額外按「總法力」獲得加成。'},
-  {en:'Perseverance',        tw:'堅忍不拔',            tier:'gold',    note:'基礎生命回復 +800%；生命 <25% 時 +1600%。'},
-  {en:'Quest: Steel Your Heart', tw:'任務：鋼鐵之心',  tier:'gold',    note:'當 Heartsteel ≥ 350 層時，把層數 ×3。'},
-  {en:'Rabble Rousing',      tw:'群起鬥毆',            tier:'gold',    note:'施放技能回復（5–60 + 1% 最大生命）。'},
-  {en:'Recursion',           tw:'遞歸冷卻',            tier:'gold',    note:'技能急速 +60。'},
-  {en:'Restless Restoration', tw:'移動療癒',           tier:'gold',    note:'每移動 1000 距離，回復（20–120 + 2% 最大生命）。'},
-  {en:'Scopier Weapons',     tw:'更神射',              tier:'gold',    note:'近戰 +200 射程；遠程 +100 射程。'},
-  {en:'Searing Dawn',        tw:'曙光灼燒',            tier:'gold',    note:'技能標記敵人；友方下一擊對其造成額外魔傷（40–200）。'},
-  {en:'Shrink Ray',          tw:'縮小射線',            tier:'gold',    note:'你的普攻使敵人造成的傷害 -15%（持續 3 秒）。'},
-  {en:'Skilled Sniper',      tw:'神射手訓練',          tier:'gold',    note:'非大招技能在 700 距離外命中 → 退還 80% 冷卻（週期性技能 65%）。'},
-  {en:'Slow and Steady',     tw:'慢即是穩',            tier:'gold',    note:'攻速鎖定 0.625；依基礎攻速獲得 AD。'},
-  {en:'Snowball Upgrade',    tw:'雪球升級',            tier:'gold',    note:'雪球 +100 急速；命中會顯示區域並上緩，持續造成魔傷。'},
-  {en:'Soul Siphon',         tw:'靈魂虹吸',            tier:'gold',    note:'暴擊率 +25%；暴擊時獲 12% 吸血。'},
-  {en:'Spiritual Purification', tw:'靈能淨化',         tier:'gold',    note:'你參與擊殺的目標會在所在地爆炸，對周圍敵人造成 15% 現在生命傷害並緩速 60%（1.5 秒）。'},
-  {en:'Tank Engine',         tw:'坦克引擎',            tier:'gold',    note:'擊殺疊 +5% 體型與 +5% 最大生命（死亡失去 65% 層數）。'},
-  {en:'Thread the Needle',   tw:'穿雲裂甲',            tier:'gold',    note:'穿甲 +18% 與 法穿 +18%。'},
-  {en:'Transmute: Prismatic',tw:'轉化：棱彩',          tier:'gold',    note:'獲得隨機「棱彩」增幅。'},
-  {en:'Twice Thrice',        tw:'雙倍三連',            tier:'gold',    note:'每第 3 次普攻，on‑hit 會再觸發一次。'},
-  {en:'Upgrade Hubris',      tw:'升級傲慢',            tier:'gold',    note:'立即 +250g；擊殺時恢復生命並獲移速（數值隨 Hubris 層數提升）。'},
-  {en:'Upgrade Infinity Edge',tw:'升級無盡',           tier:'gold',    note:'立即 +500g 與 +25% 暴擊；爆傷上限隨暴擊率浮動。'},
-  {en:'Upgrade Sheen',       tw:'升級耀光',            tier:'gold',    note:'咒刃額外造成 4% 目標最大生命物傷，並自療 3.5% 最大生命。'},
-  {en:'Vampirism',           tw:'嗜血術',              tier:'gold',    note:'無法被隊友治癒或自然回復，但全能吸血 +30%。'},
-  {en:'Vulnerability',       tw:'易傷暴擊',            tier:'gold',    note:'暴擊率 +25%；你的道具/持續性傷害可暴擊（145% 倍率）。'},
-  {en:'With Haste',          tw:'疾步如飛',            tier:'gold',    note:'依你的技能急速轉換為移動速度。'},
+      // ---------- Gold ----------
+      {en:'All for You',         tw:'全力支援',            tier:'gold',    note:'你給隊友的治癒/護盾量 +30%。'},
+      {en:'Apex Inventor',       tw:'頂尖工匠',            tier:'gold',    note:'裝備急速 +100。'},
+      {en:'Big Brain',           tw:'大腦袋',              tier:'gold',    note:'獲得等同 AP 的護盾；你死亡時重置。'},
+      {en:'Bread and Butter',    tw:'麵包與奶油',          tier:'gold',    note:'+100 Q 技能急速。'},
+      {en:'Bread and Cheese',    tw:'麵包與起司',          tier:'gold',    note:'+100 E 技能急速。'},
+      {en:'Bread and Jam',       tw:'麵包與果醬',          tier:'gold',    note:'+100 W 技能急速。'},
+      {en:'Bread Sandwich',      tw:'終極三明治',          tier:'gold',    note:'若你持有三個 Bread 類增幅 → +250 終極急速，另 Q/W/E 各 +50 急速。'},
+      {en:'Celestial Body',      tw:'天體之軀',            tier:'gold',    note:'+1250 生命值，但造成的傷害 -10%。'},
+      {en:'Cheating',            tw:'作弊回城',            tier:'gold',    note:'可使用「回城」購物與抽增幅（ARAM 特規）。'},
+      {en:'Chain Lightning',     tw:'連鎖閃電',            tier:'gold',    note:'傷害會彈向附近另一名敵人（群戰增傷極佳）。'},
+      {en:'Critical Healing',    tw:'致療一擊',            tier:'gold',    note:'暴擊率 +25%；你的治癒/護盾可「暴擊」提高 40% 效果。'},
+      {en:'Critical Rhythm',     tw:'致命節奏*',           tier:'gold',    note:'暴擊會給予攻速（每次 +6%，最多 10 層）。'},
+      {en:"Dawnbringer’s Resolve",tw:'黎明守護',           tier:'gold',    note:'生命 ≤50% 時 3 秒回復 30% 最大生命（45 秒冷卻，死亡重置）。'},
+      {en:"Demon’s Dance",       tw:'惡魔之舞',            tier:'gold',    note:'同時獲得「迅捷步法」與「不死之握」兩個關鍵符文。'},
+      {en:'Divine Intervention',  tw:'神聖干預',           tier:'gold',    note:'15 秒後降下星幕，落地給你與附近友軍 2.5 秒無敵（35 秒冷卻）。'},
+      {en:'Ethereal Weapon',     tw:'以太武裝',            tier:'gold',    note:'技能可觸發 on-hit（每個目標各自 1 秒冷卻）。'},
+      {en:'Executioner',         tw:'處決者',              tier:'gold',    note:'對生命 <30% 的敵人造成 +10% 傷害；擊殺後重置小技能。'},
+      {en:'Firebrand',           tw:'火印',                tier:'gold',    note:'普攻造成 0.4% 最大生命的灼燒（可疊）。'},
+      {en:'Flashy',              tw:'閃現達人',            tier:'gold',    note:'閃現改為 3 發彈藥、2 秒冷卻（彈藥 180 秒回充）。'},
+      {en:'From Beginning to End',tw:'始終如一',           tier:'gold',    note:'同時獲得「先攻」與「黑暗收割」。'},
+      {en:'Get Excited',         tw:'我超嗨',              tier:'gold',    note:'擊殺後 4 秒內獲 +100% 移速與 +15% 攻速。'},
+      {en:'Holy Fire',           tw:'聖焰灼身',            tier:'gold',    note:'你對友方的治/盾會對 650 範圍內最近敵人施加 1%–4% 最大生命的灼燒（可疊）。'},
+      {en:'Impassable',          tw:'冰霜壁壘',            tier:'gold',    note:'同時獲得「餘震」與「冰川強襲」。'},
+      {en:"It’s Critical",       tw:'就是要爆',            tier:'gold',    note:'暴擊率 +50%。'},
+      {en:"It’s Killing Time",   tw:'屠戮時刻',            tier:'gold',    note:'施放大招後標記所有敵人，5 秒後依儲存傷害引爆（8 秒冷卻）。'},
+      {en:'Keystone Conjurer',   tw:'召喚雙符',            tier:'gold',    note:'同時獲得「召喚艾莉」與「秘能彗星」。'},
+      {en:'Lightning Strikes',   tw:'電光連擊',            tier:'gold',    note:'攻速 +20%；達 4.0 AS 時，每次普攻追加 40 魔傷 on-hit。'},
+      {en:'Magic Missile',       tw:'魔彈齊發',            tier:'gold',    note:'技能命中會射出 3 發魔彈；每發依距離造成 0.33%–1% 目標最大生命的真傷（6 秒同源冷卻）。'},
+      {en:'Marksmage',           tw:'射術法師',            tier:'gold',    note:'普攻追加（75% AP）係數的物理傷害。'},
+      {en:'Minionmancer',        tw:'傀儡增幅',            tier:'gold',    note:'召喚物的體型、生命與傷害 +40%。'},
+      {en:'Nightstalking',       tw:'夜行者',              tier:'gold',    note:'3 秒內參與擊殺 → 獲 1.5 秒隱形。'},
+      {en:'Ok Boomerang',        tw:'OK 迴旋鏢',           tier:'gold',    note:'每 10 秒自動對附近敵人投擲迴旋鏢，造成 (40–200 + 30% bAD + 20% AP) 自適應傷害。'},
+      {en:"Outlaw’s Grit",       tw:'亡命之志',            tier:'gold',    note:'位移/閃現/傳送後 +雙抗，最多疊 5 次（每層 15 秒）。'},
+      {en:'Overflow',            tw:'溢流',                tier:'gold',    note:'耗魔翻倍；技能治癒/護盾/傷害額外按「總法力」獲得加成。'},
+      {en:'Perseverance',        tw:'堅忍不拔',            tier:'gold',    note:'基礎生命回復 +800%；生命 <25% 時 +1600%。'},
+      {en:'Quest: Steel Your Heart', tw:'任務：鋼鐵之心',  tier:'gold',    note:'當 Heartsteel ≥ 350 層時，把層數 ×3。'},
+      {en:'Rabble Rousing',      tw:'群起鬥毆',            tier:'gold',    note:'施放技能回復（5–60 + 1% 最大生命）。'},
+      {en:'Recursion',           tw:'遞歸冷卻',            tier:'gold',    note:'技能急速 +60。'},
+      {en:'Restless Restoration', tw:'移動療癒',           tier:'gold',    note:'每移動 1000 距離，回復（20–120 + 2% 最大生命）。'},
+      {en:'Scopier Weapons',     tw:'更神射',              tier:'gold',    note:'近戰 +200 射程；遠程 +100 射程。'},
+      {en:'Searing Dawn',        tw:'曙光灼燒',            tier:'gold',    note:'技能標記敵人；友方下一擊對其造成額外魔傷（40–200）。'},
+      {en:'Shrink Ray',          tw:'縮小射線',            tier:'gold',    note:'你的普攻使敵人造成的傷害 -15%（持續 3 秒）。'},
+      {en:'Skilled Sniper',      tw:'神射手訓練',          tier:'gold',    note:'非大招技能在 700 距離外命中 → 退還 80% 冷卻（週期性技能 65%）。'},
+      {en:'Slow and Steady',     tw:'慢即是穩',            tier:'gold',    note:'攻速鎖定 0.625；依基礎攻速獲得 AD。'},
+      {en:'Snowball Upgrade',    tw:'雪球升級',            tier:'gold',    note:'雪球 +100 急速；命中會顯示區域並上緩，持續造成魔傷。'},
+      {en:'Soul Siphon',         tw:'靈魂虹吸',            tier:'gold',    note:'暴擊率 +25%；暴擊時獲 12% 吸血。'},
+      {en:'Spiritual Purification', tw:'靈能淨化',         tier:'gold',    note:'你參與擊殺的目標會在所在地爆炸，對周圍敵人造成 15% 現在生命傷害並緩速 60%（1.5 秒）。'},
+      {en:'Tank Engine',         tw:'坦克引擎',            tier:'gold',    note:'擊殺疊 +5% 體型與 +5% 最大生命（死亡失去 65% 層數）。'},
+      {en:'Thread the Needle',   tw:'穿雲裂甲',            tier:'gold',    note:'穿甲 +18% 與 法穿 +18%。'},
+      {en:'Transmute: Prismatic',tw:'轉化：棱彩',          tier:'gold',    note:'獲得隨機「棱彩」增幅。'},
+      {en:'Twice Thrice',        tw:'雙倍三連',            tier:'gold',    note:'每第 3 次普攻，on-hit 會再觸發一次。'},
+      {en:'Upgrade Hubris',      tw:'升級傲慢',            tier:'gold',    note:'立即 +250g；擊殺時恢復生命並獲移速（數值隨 Hubris 層數提升）。'},
+      {en:'Upgrade Infinity Edge',tw:'升級無盡',           tier:'gold',    note:'立即 +500g 與 +25% 暴擊；爆傷上限隨暴擊率浮動。'},
+      {en:'Upgrade Sheen',       tw:'升級耀光',            tier:'gold',    note:'咒刃額外造成 4% 目標最大生命物傷，並自療 3.5% 最大生命。'},
+      {en:'Vampirism',           tw:'嗜血術',              tier:'gold',    note:'無法被隊友治癒或自然回復，但全能吸血 +30%。'},
+      {en:'Vulnerability',       tw:'易傷暴擊',            tier:'gold',    note:'暴擊率 +25%；你的道具/持續性傷害可暴擊（145% 倍率）。'},
+      {en:'With Haste',          tw:'疾步如飛',            tier:'gold',    note:'依你的技能急速轉換為移動速度。'},
 
-  // ---------- Prismatic ----------
-  {en:'Baby Kitty',          tw:'黏踢踢寶貓',          tier:'prismatic', note:'靠近指定隊友獲大量移速與治療強化；往「媽咪」方向移動速度更快。'},
-  {en:'Back to Basics',      tw:'回歸基礎',            tier:'prismatic', note:'封印大招；改為 +35% 技能傷害/治癒/護盾 及 +70 技能急速。'},
-  {en:'Biggest Snowball Ever', tw:'超巨雪球',         tier:'prismatic', note:'雪球 +100 急速並變大可穿兵，命中上緩/擊飛與額外魔傷（未帶雪球者會獲得）。'},
-  {en:'Blade Waltz',         tw:'劍舞',                tier:'prismatic', note:'獲召喚師法術「劍舞」：無目標連斬 5 次且短暫無敵。'},
-  {en:"Can’t Touch This",    tw:'別碰我',              tier:'prismatic', note:'施放大招後獲 2 秒無敵（8 秒冷卻）。'},
-  {en:'Circle of Death',     tw:'死亡環',              tier:'prismatic', note:'你對友方的治癒/回復有 70% 轉為對最近敵人的傷害（1000 範圍）。'},
-  {en:'Clown College',       tw:'小丑學院',            tier:'prismatic', note:'提供背刺被動與「欺詐」隱身重擊；死亡時對周圍造成真傷並恐懼。'},
-  {en:'Courage of the Colossus', tw:'巨像之勇',       tier:'prismatic', note:'使敵人定身/禁錮後獲大護盾（依等級與最大生命）。'},
-  {en:'Cruelty',             tw:'無情',                tier:'prismatic', note:'你定身/禁錮敵人時，1 秒後落下一顆彗星造成範圍魔傷（每招各自冷卻）。'},
-  {en:'Dashing',             tw:'縱躍專精',            tier:'prismatic', note:'所有位移/閃現/傳送類技能 +175 技能急速。'},
-  {en:'Draw Your Sword',     tw:'拔劍吧',              tier:'prismatic', note:'將你改為近戰（200 射程），並大幅提升 AD/HP/AS/吸血/移速。'},
-  {en:'Dual Wield',          tw:'雙持射擊',            tier:'prismatic', note:'普攻時額外發射第二發，造成 40% tAD 物傷並以 40% 效率套用 on‑hit。'},
-  {en:'Empyrean Promise',    tw:'天墜護佑',            tier:'prismatic', note:'傳送到友方並賦予大型護盾（隨 AP/最大生命成長）。'},
-  {en:'Eureka',              tw:'靈光一現',            tier:'prismatic', note:'依 AP 獲得技能急速（30% AP → AH）。'},
-  {en:'Fan the Hammer',      tw:'連轟扳機',            tier:'prismatic', note:'每次普攻向四方再射 5 發；可暴擊並套用 on‑hit（15 秒每方向冷卻）。'},
-  {en:'Feel the Burn',       tw:'群體引燃',            tier:'prismatic', note:'向所有鄰近敵人同時施放點燃與虛弱。'},
-  {en:'Fey Magic',           tw:'妖精魔法',            tier:'prismatic', note:'大招命中會使敵人變形（2 秒）。'},
-  {en:'Final Form',          tw:'最終形態',            tier:'prismatic', note:'大招後獲大型護盾、全能吸血與移速（20 秒冷卻）。'},
-  {en:'Gash',                tw:'裂甲真傷',            tier:'prismatic', note:'普攻轉為附加真傷（近戰與遠程數值不同）。'},
-  {en:'Giant Slayer',        tw:'巨人殺手',            tier:'prismatic', note:'自身縮小並獲移速；對體型更大的敵人造成額外 10%–30% 傷害。'},
-  {en:'Glass Cannon',        tw:'玻璃大砲',            tier:'prismatic', note:'最大生命 -30%，但另造成 +12% 真實傷害。'},
-  {en:'Goldrend',            tw:'淘金者',              tier:'prismatic', note:'攻擊或技能命中賦予 +25% 移速 1.5 秒，並 +15 金幣（每名敵人 30 秒冷卻）。'},
-  {en:'Goliath',             tw:'巨靈化身',            tier:'prismatic', note:'體型變大；生命 +35%，自適應力 +15%。'},
-  {en:'Infernal Conduit',    tw:'煉獄導管',            tier:'prismatic', note:'技能施加無限疊灼燒；每次灼燒跳動都會縮短你的小技能冷卻。'},
-  {en:'Jeweled Gauntlet',    tw:'珠寶手套',            tier:'prismatic', note:'你的法術可以暴擊，並且提升暴擊倍率。'},
-  {en:'King Me',             tw:'加冕吧',              tier:'prismatic', note:'首次帶著傳奇裝踏上敵方傳輸點時，升級該裝並獲得隨機棱彩增幅。'},
-  {en:'Laser Heal',          tw:'治療雷射',            tier:'prismatic', note:'釋放治療光束 2.5 秒，對友方回復、對敵方造成傷害與緩速。'},
-  {en:'Mad Scientist',       tw:'瘋狂科學家',          tier:'prismatic', note:'每次復活隨機變「巨大」或「袖珍」，獲對應屬性加成。'},
-  {en:'Master of Duality',   tw:'雙修大師',            tier:'prismatic', note:'普攻疊 AP；施法疊 AD（可無限堆疊）。'},
-  {en:'Mystic Punch',        tw:'秘拳',                tier:'prismatic', note:'on‑hit 依剩餘冷卻百分比縮短你的小技能冷卻（最少 0.5 秒）。'},
-  {en:'Ominous Pact',        tw:'不祥之約',            tier:'prismatic', note:'低血時獲高額 AP、移速與全能吸血；施法會扣你當前生命。'},
-  {en:'Omni Soul',           tw:'萬魂加持',            tier:'prismatic', note:'一次獲得三種隨機龍魂。'},
-  {en:'Protein Shake',       tw:'蛋白奶昔',            tier:'prismatic', note:'治癒量依你的雙抗額外乘算提升。'},
-  {en:'Quantum Computing',   tw:'量子運算',            tier:'prismatic', note:'每 30 秒自動釋放大範圍斬擊（外圈高緩速＋%生命傷，並依造成的英雄傷害自我治療）。'},
-  {en:'Quest: Sneakerhead',  tw:'任務：鞋頭',          tier:'prismatic', note:'依不同鞋子完成 6 個小任務換取大獎勵。'},
-  {en:"Quest: Urf’s Champion",tw:'任務：烏爾夫勇士',   tier:'prismatic', note:'累計 22 次擊殺參與 → 獲金鏟子。'},
-  {en:"Quest: Wooglet’s Witchcap", tw:'任務：巫巫帽',  tier:'prismatic', note:'先拿蘭頓/帽子條件 → 獲得 Wooglet’s 巫巫帽。'},
-  {en:'Raid Boss',           tw:'團戰首領',            tier:'prismatic', note:'每回合開戰先被囚於中央短時並獲高減傷與免控，結束時擊退周圍敵人並獲大治療與護盾，且保留屬性增益。'},
-  {en:'Scopiest Weapons',    tw:'最神射',              tier:'prismatic', note:'近戰 +250 射程；遠程 +150 射程。'},
-  {en:'Slow Cooker',         tw:'慢燉之火',            tier:'prismatic', note:'每秒對附近敵人施加無限疊的灼燒。'},
-  {en:'Snowball Roulette',   tw:'雪球輪盤',            tier:'prismatic', note:'雪球命中後對自己施放隨機有利召喚師法術，對敵人施放隨機妨害法術。'},
-  {en:'Spirit Link',         tw:'靈魂連結',            tier:'prismatic', note:'與最近隊友綁定，共享你給予的治癒與護盾效益。'},
-  {en:'Stats on Stats!',     tw:'疊上加疊！',          tier:'prismatic', note:'立即獲得 3 個屬性 Anvils 的強化，快速成型。'},
-  {en:'Symphony of War',     tw:'戰爭交響',            tier:'prismatic', note:'同時擁有「致命節奏」與「征服者」。'},
-  {en:'Tap Dancer',          tw:'踢踏舞',              tier:'prismatic', note:'普攻 +10 移速（無上限），並依總移速獲攻速。'},
-  {en:'Transmute: Chaos',    tw:'轉化：混沌',          tier:'prismatic', note:'一次獲得兩個隨機增幅（70% 金／30% 銀）。'},
-  {en:'Ultimate Awakening',  tw:'究極甦醒',            tier:'prismatic', note:'施放大招後重置所有小技能冷卻（10 秒冷卻）。'},
-  {en:'Ultimate Revolution', tw:'究極輪迴',            tier:'prismatic', note:'施放大招後刷新大招（75 秒冷卻；死亡重置）。'},
-  {en:"Upgrade Mikael’s Blessing", tw:'升級米凱爾',    tier:'prismatic', note:'冷卻降至 60 秒；啟動時改為範圍淨化＋治療並給 65% 韌性（3 秒）。'},
-  {en:"Windspeaker’s Blessing",   tw:'風語者祝福',     tier:'prismatic', note:'你的治/盾同時賦予雙抗（可作用至附近友軍）。'},
-  {en:'Wisdom of Ages',      tw:'歲月智慧',            tier:'prismatic', note:'每次升級獲得額外生命與法強，越到後期越強。'},
-  {en:'Unkillable Demon King',tw:'不死魔王',          tier:'prismatic', note:'本局首次死亡時以約 50% 生命原地復活（冷卻）。'}
-];
-
+      // ---------- Prismatic ----------
+      {en:'Baby Kitty',          tw:'黏踢踢寶貓',          tier:'prismatic', note:'靠近指定隊友獲大量移速與治療強化；往「媽咪」方向移動速度更快。'},
+      {en:'Back to Basics',      tw:'回歸基礎',            tier:'prismatic', note:'封印大招；改為 +35% 技能傷害/治癒/護盾 及 +70 技能急速。'},
+      {en:'Biggest Snowball Ever', tw:'超巨雪球',         tier:'prismatic', note:'雪球 +100 急速並變大可穿兵，命中上緩/擊飛與額外魔傷（未帶雪球者會獲得）。'},
+      {en:'Blade Waltz',         tw:'劍舞',                tier:'prismatic', note:'獲召喚師法術「劍舞」：無目標連斬 5 次且短暫無敵。'},
+      {en:"Can’t Touch This",    tw:'別碰我',              tier:'prismatic', note:'施放大招後獲 2 秒無敵（8 秒冷卻）。'},
+      {en:'Circle of Death',     tw:'死亡環',              tier:'prismatic', note:'你對友方的治癒/回復有 70% 轉為對最近敵人的傷害（1000 範圍）。'},
+      {en:'Clown College',       tw:'小丑學院',            tier:'prismatic', note:'提供背刺被動與「欺詐」隱身重擊；死亡時對周圍造成真傷並恐懼。'},
+      {en:'Courage of the Colossus', tw:'巨像之勇',       tier:'prismatic', note:'使敵人定身/禁錮後獲大護盾（依等級與最大生命）。'},
+      {en:'Cruelty',             tw:'無情',                tier:'prismatic', note:'你定身/禁錮敵人時，1 秒後落下一顆彗星造成範圍魔傷（每招各自冷卻）。'},
+      {en:'Dashing',             tw:'縱躍專精',            tier:'prismatic', note:'所有位移/閃現/傳送類技能 +175 技能急速。'},
+      {en:'Draw Your Sword',     tw:'拔劍吧',              tier:'prismatic', note:'將你改為近戰（200 射程），並大幅提升 AD/HP/AS/吸血/移速。'},
+      {en:'Dual Wield',          tw:'雙持射擊',            tier:'prismatic', note:'普攻時額外發射第二發，造成 40% tAD 物傷並以 40% 效率套用 on-hit。'},
+      {en:'Empyrean Promise',    tw:'天墜護佑',            tier:'prismatic', note:'傳送到友方並賦予大型護盾（隨 AP/最大生命成長）。'},
+      {en:'Eureka',              tw:'靈光一現',            tier:'prismatic', note:'依 AP 獲得技能急速（30% AP → AH）。'},
+      {en:'Fan the Hammer',      tw:'連轟扳機',            tier:'prismatic', note:'每次普攻向四方再射 5 發；可暴擊並套用 on-hit（15 秒每方向冷卻）。'},
+      {en:'Feel the Burn',       tw:'群體引燃',            tier:'prismatic', note:'向所有鄰近敵人同時施放點燃與虛弱。'},
+      {en:'Fey Magic',           tw:'妖精魔法',            tier:'prismatic', note:'大招命中會使敵人變形（2 秒）。'},
+      {en:'Final Form',          tw:'最終形態',            tier:'prismatic', note:'大招後獲大型護盾、全能吸血與移速（20 秒冷卻）。'},
+      {en:'Gash',                tw:'裂甲真傷',            tier:'prismatic', note:'普攻轉為附加真傷（近戰與遠程數值不同）。'},
+      {en:'Giant Slayer',        tw:'巨人殺手',            tier:'prismatic', note:'自身縮小並獲移速；對體型更大的敵人造成額外 10%–30% 傷害。'},
+      {en:'Glass Cannon',        tw:'玻璃大砲',            tier:'prismatic', note:'最大生命 -30%，但另造成 +12% 真實傷害。'},
+      {en:'Goldrend',            tw:'淘金者',              tier:'prismatic', note:'攻擊或技能命中賦予 +25% 移速 1.5 秒，並 +15 金幣（對同一人 30 秒冷卻）。'},
+      {en:'Goliath',             tw:'巨靈化身',            tier:'prismatic', note:'體型變大；生命 +35%，自適應力 +15%。'},
+      {en:'Infernal Conduit',    tw:'煉獄導管',            tier:'prismatic', note:'技能施加無限疊灼燒；每次灼燒跳動都會縮短你的小技能冷卻。'},
+      {en:'Jeweled Gauntlet',    tw:'珠寶手套',            tier:'prismatic', note:'你的法術可以暴擊，並且提升暴擊倍率。'},
+      {en:'King Me',             tw:'加冕吧',              tier:'prismatic', note:'首次帶著傳奇裝踏上敵方傳輸點時，升級該裝並獲得隨機棱彩增幅。'},
+      {en:'Laser Heal',          tw:'治療雷射',            tier:'prismatic', note:'釋放治療光束 2.5 秒，對友方回復、對敵方造成傷害與緩速。'},
+      {en:'Mad Scientist',       tw:'瘋狂科學家',          tier:'prismatic', note:'每次復活隨機變「巨大」或「袖珍」，獲對應屬性加成。'},
+      {en:'Master of Duality',   tw:'雙修大師',            tier:'prismatic', note:'普攻疊 AP；施法疊 AD（可無限堆疊）。'},
+      {en:'Mystic Punch',        tw:'秘拳',                tier:'prismatic', note:'on-hit 依剩餘冷卻百分比縮短你的小技能冷卻（最少 0.5 秒）。'},
+      {en:'Ominous Pact',        tw:'不祥之約',            tier:'prismatic', note:'低血時獲高額 AP、移速與全能吸血；施法會扣你當前生命。'},
+      {en:'Omni Soul',           tw:'萬魂加持',            tier:'prismatic', note:'一次獲得三種隨機龍魂。'},
+      {en:'Protein Shake',       tw:'蛋白奶昔',            tier:'prismatic', note:'治癒量依你的雙抗額外乘算提升。'},
+      {en:'Quantum Computing',   tw:'量子運算',            tier:'prismatic', note:'每 30 秒自動釋放大範圍斬擊（外圈高緩速＋%生命傷，並依造成的英雄傷害自我治療）。'},
+      {en:'Quest: Sneakerhead',  tw:'任務：鞋頭',          tier:'prismatic', note:'依不同鞋子完成 6 個小任務換取大獎勵。'},
+      {en:"Quest: Urf’s Champion",tw:'任務：烏爾夫勇士',   tier:'prismatic', note:'累計 22 次擊殺參與 → 獲金鏟子。'},
+      {en:"Quest: Wooglet’s Witchcap", tw:'任務：巫巫帽',  tier:'prismatic', note:'先拿蘭頓/帽子條件 → 獲得 Wooglet’s 巫巫帽。'},
+      {en:'Raid Boss',           tw:'團戰首領',            tier:'prismatic', note:'每回合開戰先被囚於中央短時並獲高減傷與免控，結束時擊退周圍敵人並獲大治療與護盾，且保留屬性增益。'},
+      {en:'Scopiest Weapons',    tw:'最神射',              tier:'prismatic', note:'近戰 +250 射程；遠程 +150 射程。'},
+      {en:'Slow Cooker',         tw:'慢燉之火',            tier:'prismatic', note:'每秒對附近敵人施加無限疊的灼燒。'},
+      {en:'Snowball Roulette',   tw:'雪球輪盤',            tier:'prismatic', note:'雪球命中後對自己施放隨機有利召喚師法術，對敵人施放隨機妨害法術。'},
+      {en:'Spirit Link',         tw:'靈魂連結',            tier:'prismatic', note:'與最近隊友綁定，共享你給予的治癒與護盾效益。'},
+      {en:'Stats on Stats!',     tw:'疊上加疊！',          tier:'prismatic', note:'立即獲得 3 個屬性 Anvils 的強化，快速成型。'},
+      {en:'Symphony of War',     tw:'戰爭交響',            tier:'prismatic', note:'同時擁有「致命節奏」與「征服者」。'},
+      {en:'Tap Dancer',          tw:'踢踏舞',              tier:'prismatic', note:'普攻 +10 移速（無上限），並依總移速獲攻速。'},
+      {en:'Transmute: Chaos',    tw:'轉化：混沌',          tier:'prismatic', note:'一次獲得兩個隨機增幅（70% 金／30% 銀）。'},
+      {en:'Ultimate Awakening',  tw:'究極甦醒',            tier:'prismatic', note:'施放大招後重置所有小技能冷卻（10 秒冷卻）。'},
+      {en:'Ultimate Revolution', tw:'究極輪迴',            tier:'prismatic', note:'施放大招後刷新大招（75 秒冷卻；死亡重置）。'},
+      {en:"Upgrade Mikael’s Blessing", tw:'升級米凱爾',    tier:'prismatic', note:'冷卻降至 60 秒；啟動時改為範圍淨化＋治療並給 65% 韌性（3 秒）。'},
+      {en:"Windspeaker’s Blessing",   tw:'風語者祝福',     tier:'prismatic', note:'你的治/盾同時賦予雙抗（可作用至附近友軍）。'},
+      {en:'Wisdom of Ages',      tw:'歲月智慧',            tier:'prismatic', note:'每次升級獲得額外生命與法強，越到後期越強。'},
+      {en:'Unkillable Demon King',tw:'不死魔王',          tier:'prismatic', note:'本局首次死亡時以約 50% 生命原地復活（冷卻）。'}
+    ];
 
     // ======= 推薦方案（依角色） =======
     const ROLE_PLANS = {
@@ -406,6 +439,18 @@ const AUGMENTS = [
     const $copyBtn   = document.getElementById('copyBtn');
     const $exportBtn = document.getElementById('exportBtn');
 
+    const $augGrid   = document.getElementById('augGrid');
+    const $augSearch = document.getElementById('augSearch');
+    const $onlyRec   = document.getElementById('onlyRec');
+
+    // ======= 工具 =======
+    function findAug(en){ return AUGMENTS.find(a=>a.en===en); }
+    function getRecommendedSet(role){
+      const flow = ROLE_PLANS[role] || [];
+      return new Set(flow.flatMap(r => r.picks));
+    }
+
+    // ======= 渲染：左側 =======
     function renderRoles(){
       $roleList.innerHTML = Object.keys(ROLE_META).map(key=>{
         const active = state.role===key; const meta = ROLE_META[key];
@@ -447,8 +492,7 @@ const AUGMENTS = [
       });
     }
 
-    function findAug(en){ return AUGMENTS.find(a=>a.en===en); }
-
+    // ======= 渲染：右上「當前方案」與四輪推薦 =======
     function renderPlan(){
       const hero = state.champions.find(x=>x.key===state.heroKey);
       const role = hero? hero.role : state.role;
@@ -466,7 +510,7 @@ const AUGMENTS = [
                 <div class="tt"><span class="tw">${a.tw}</span><div class="ttip">${a.en}</div></div>
                 ${small}
               </div>
-              ${a.note?`<div class="tip">${a.note}</div>`:''}
+              <div class="tip">${a.note || '— 暫無中文簡述 —'}</div>
             </div>
           `;
         }).join('');
@@ -477,6 +521,41 @@ const AUGMENTS = [
               ${tierBadge}
             </div>
             <div class="picks">${items}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // ======= 渲染：右下「增幅總覽」 =======
+    function renderAugCatalog(){
+      const hero = state.champions.find(x=>x.key===state.heroKey);
+      const role = hero ? hero.role : state.role;
+      const recSet = getRecommendedSet(role);
+
+      const { tier, onlyRec, q } = state.augFilter;
+      const kw = (q||'').trim().toLowerCase();
+
+      const order = {silver:0, gold:1, prismatic:2};
+      const list = AUGMENTS
+        .filter(a=>{
+          const okTier = (tier==='all' || a.tier===tier);
+          const okText = !kw || a.tw.toLowerCase().includes(kw) || a.en.toLowerCase().includes(kw) || (a.note||'').toLowerCase().includes(kw);
+          const okRec  = !onlyRec || recSet.has(a.en);
+          return okTier && okText && okRec;
+        })
+        .sort((a,b)=> order[a.tier]-order[b.tier] || a.tw.localeCompare(b.tw,'zh-Hant'));
+
+      $augGrid.innerHTML = list.map(a=>{
+        const recommended = recSet.has(a.en);
+        const chip = a.tier==='silver' ? 'tier-silver' : a.tier==='gold' ? 'tier-gold' : 'tier-prismatic';
+        return `
+          <div class="aug-card ${recommended?'is-rec':''}">
+            <div class="head">
+              <div class="tt"><strong class="tw">${a.tw}</strong><div class="ttip">${a.en}</div></div>
+              <span class="tier-chip ${chip}">${a.tier.toUpperCase()}</span>
+            </div>
+            <div class="tip">${a.note || '— 暫無中文簡述 —'}</div>
+            ${recommended?'<div class="tip rec-badge">★ 推薦（依當前類型）</div>':''}
           </div>
         `;
       }).join('');
@@ -500,12 +579,33 @@ const AUGMENTS = [
       const url = URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='aram-mayhem-full.tw.json'; a.click(); URL.revokeObjectURL(url);
     }
 
-    function renderAll(){ renderRoles(); renderHeroes(); renderPlan(); }
+    function renderAll(){
+      renderRoles(); renderHeroes(); renderPlan(); renderAugCatalog();
+    }
 
+    // 綁定事件
     document.getElementById('copyBtn').addEventListener('click', copyPlan);
     document.getElementById('exportBtn').addEventListener('click', exportJSON);
     document.getElementById('search').addEventListener('input', renderHeroes);
 
+    document.querySelectorAll('#augCatalog .btn.pill[data-tier]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        document.querySelectorAll('#augCatalog .btn.pill[data-tier]').forEach(b=>b.classList.remove('active'));
+        btn.classList.add('active');
+        state.augFilter.tier = btn.getAttribute('data-tier');
+        renderAugCatalog();
+      });
+    });
+    document.getElementById('augSearch').addEventListener('input', e=>{
+      state.augFilter.q = e.target.value;
+      renderAugCatalog();
+    });
+    document.getElementById('onlyRec').addEventListener('change', e=>{
+      state.augFilter.onlyRec = e.target.checked;
+      renderAugCatalog();
+    });
+
+    // 啟動
     loadChampions().catch(err=>{
       console.error(err);
       state.version = 'latest'; state.champions=[]; renderAll();
