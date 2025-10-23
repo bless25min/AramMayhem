@@ -3,338 +3,584 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ARAM Mayhem 台版增幅速查表</title>
-  <meta name="description" content="英雄聯盟 ARAM: Mayhem 增幅（Augments）依英雄類型的互動速查表（台版用語介面），單檔可直接部屬於 GitHub Pages / Cloudflare Pages。">
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@3.4.10/dist/tailwind.min.css" rel="stylesheet">
+  <title>ARAM Mayhem 台版增幅速查表（全英雄＋縮圖）</title>
+  <meta name="description" content="英雄聯盟 ARAM: Mayhem 增幅（Augments）依英雄類型的互動速查表（台版用語介面），自動載入全英雄與縮圖。單檔可直接部署至 GitHub Pages / Cloudflare Pages。">
+
+  <!-- 電競風格：高對比＋霓虹點綴 -->
   <style>
-    /* 基本樣式微調 */
-    .badge{display:inline-flex;align-items:center;border-width:1px;border-radius:9999px;padding:.125rem .5rem;font-size:.75rem;font-weight:600}
-    .badge-silver{background:#f8fafc;color:#334155;border-color:#cbd5e1}
-    .badge-gold{background:#fff7ed;color:#92400e;border-color:#fed7aa}
-    .badge-prismatic{background:#faf5ff;color:#6b21a8;border-color:#e9d5ff}
-    .card{border-width:1px;border-color:#e5e7eb;border-radius:1rem;background:rgba(255,255,255,.9);box-shadow:0 1px 2px rgba(0,0,0,.05)}
-    .grad{background-image:linear-gradient(to bottom,#f8fafc,#eef2ff)}
-    .role-chip{border-width:1px;border-color:#e5e7eb;border-radius:1rem;padding:.5rem .75rem}
-    .role-chip.active{outline:3px solid #111827;outline-offset:2px}
-    .btn{border-width:1px;border-color:#e5e7eb;border-radius:.75rem;padding:.5rem .75rem;background:#fff;box-shadow:0 1px 2px rgba(0,0,0,.05)}
-    .btn:hover{box-shadow:0 2px 6px rgba(0,0,0,.08)}
-    .pill{border-width:1px;border-color:#e5e7eb;border-radius:.75rem;padding:.375rem .5rem;font-size:.75rem}
-    .tooltip{position:relative}
-    .tooltip:hover .tip{opacity:1;transform:translateY(0)}
-    .tip{position:absolute;left:50%;transform:translate(-50%,6px);opacity:0;transition:all .15s;white-space:nowrap;background:#111827;color:#fff;font-size:.75rem;border-radius:.5rem;padding:.25rem .5rem;z-index:20}
+    :root{
+      --bg:#0a0d16; --panel:#10162b; --muted:#8ea0c6;
+      --line:#1f2a44; --line-2:#263459;
+      --accent:#00e0ff; --accent-2:#ff3d78; --accent-3:#7c4dff;
+      --ok:#24d186; --warn:#ffcc00;
+      --radius:14px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0; background:
+        radial-gradient(1200px 600px at 20% -10%, rgba(124,77,255,.18), transparent 60%),
+        radial-gradient(900px 500px at 85% 15%, rgba(0,224,255,.18), transparent 60%),
+        linear-gradient(180deg, #0a0d16 0%, #0b0f1f 60%, #0a0d16 100%);
+      color:#e6edff; font: 14px/1.55 system-ui, -apple-system, "Segoe UI", Roboto, "Noto Sans", "PingFang TC", "Heiti TC", "Microsoft JhengHei", sans-serif;
+    }
+    .wrap{max-width:1100px; margin:0 auto; padding:16px}
+    header{
+      position:sticky; top:0; z-index:9; backdrop-filter: blur(8px);
+      background: rgba(10,13,22,.6); border-bottom:1px solid var(--line);
+    }
+    h1{font-size: clamp(18px, 3.5vw, 28px); margin: 8px 0 6px; letter-spacing:.5px}
+    .sub{color:var(--muted); font-size:12px}
+    .grid{display:grid; gap:16px}
+    .sidebar{grid-template-columns: 1fr}
+    .main{grid-template-columns: 1fr}
+    @media (min-width: 1024px){
+      .page{display:grid; grid-template-columns: 340px 1fr; gap:18px}
+    }
+    .card{
+      border:1px solid var(--line); background: linear-gradient(180deg, rgba(16,22,43,.92), rgba(10,13,22,.92));
+      border-radius: var(--radius); box-shadow: 0 10px 30px rgba(0,0,0,.25), inset 0 1px 0 rgba(255,255,255,.03);
+    }
+    .pad{padding:14px}
+    .row{display:flex; align-items:center; justify-content:space-between; gap:10px}
+    .btn{
+      border:1px solid var(--line-2); background:#0c1122; color:#e6edff;
+      padding:10px 14px; border-radius:12px; cursor:pointer;
+      box-shadow: 0 2px 10px rgba(0,224,255,.08);
+    }
+    .btn:hover{border-color: var(--accent); box-shadow:0 4px 18px rgba(0,224,255,.18)}
+    .badge{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line-2); padding:3px 8px; border-radius:999px; font-size:11px; color:#cfe2ff}
+    .silver{background:linear-gradient(180deg, #182036,#12192f)}
+    .gold{background:linear-gradient(180deg, #2a240f,#1d180a); color:#ffe8a6; border-color:#5d4a19}
+    .prismatic{background:linear-gradient(180deg, #241230,#120a26); color:#e7d0ff; border-color:#5a2a9a}
+    .field{display:block; width:100%; padding:10px 12px; border-radius:12px; border:1px solid var(--line); background:#0c1122; color:#e6edff}
+    .section-title{font-weight:700; letter-spacing:.3px; margin:0 0 10px}
+    .tip{color:var(--muted); font-size:12px}
+    .pill{border:1px solid var(--line); padding:4px 8px; border-radius:12px; font-size:12px; background:#0c1122}
+    /* 可點擊區：至少 44px */
+    .tap{min-height:44px; display:flex; align-items:center}
+    .role-chip{
+      border:1px solid var(--line); border-radius:14px; padding:8px;
+      background: linear-gradient(180deg, #10162b, #0d1325); cursor:pointer;
+    }
+    .role-chip.active{outline:2px solid var(--accent); box-shadow: 0 0 0 4px rgba(0,224,255,.12)}
+    .list{display:grid; gap:10px}
+    .hero-grid{display:grid; grid-template-columns: repeat(4, 1fr); gap:10px}
+    @media (min-width:560px){ .hero-grid{grid-template-columns: repeat(6, 1fr)} }
+    @media (min-width:840px){ .hero-grid{grid-template-columns: repeat(8, 1fr)} }
+    .hero{
+      display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center;
+      border:1px solid var(--line); border-radius:12px; padding:10px; background: #0b1021; cursor:pointer;
+    }
+    .hero:hover{border-color:var(--accent)}
+    .hero img{width:64px; height:64px; border-radius:10px; display:block; background:#0d1430}
+    .hero .nm{font-size:11px; line-height:1.2}
+    .hero .en{font-size:10px; color:var(--muted)}
+    .round-card .picks{display:grid; grid-template-columns:1fr; gap:8px}
+    @media (min-width: 720px){ .round-card .picks{grid-template-columns: repeat(3, 1fr)}}
+    .pick{
+      border:1px solid var(--line); background:#0c1122; border-radius:12px; padding:10px;
+    }
+    .pick .head{display:flex; align-items:center; justify-content:space-between; gap:8px}
+    .pick .tw{font-weight:600}
+    .tt{position:relative}
+    .tt:hover .ttip{opacity:1; transform: translateY(0)}
+    .ttip{
+      position:absolute; left:50%; transform: translate(-50%, 6px); opacity:0; transition:all .15s;
+      white-space:nowrap; background:#000; color:#fff; font-size:11px; border-radius:6px; padding:4px 6px; z-index:5
+    }
+    .accent-line{height:1px; background:linear-gradient(90deg, transparent, var(--accent), transparent); margin:6px 0 12px}
+    .footer{color:#9bb1da; font-size:11px; text-align:center; padding:16px 0 32px}
+    /* 可讀性加強 */
+    .num{font-feature-settings:"tnum" 1, "lnum" 1}
   </style>
 </head>
-<body class="min-h-screen grad text-slate-900">
-  <header class="sticky top-0 z-10 backdrop-blur bg-white/70 border-b">
-    <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-      <h1 class="text-lg md:text-2xl font-bold tracking-tight">ARAM Mayhem 台版增幅速查表</h1>
-      <div class="flex gap-2">
-        <button id="copyBtn" class="btn text-sm">複製當前方案</button>
-        <button id="exportBtn" class="btn text-sm">匯出 JSON</button>
+<body>
+  <header>
+    <div class="wrap row">
+      <div>
+        <h1>ARAM Mayhem 台版增幅速查表</h1>
+        <div class="sub">全英雄（繁中名＋縮圖）／全增幅（台版暫譯＋英名 tooltip）／行動優化／電競風格</div>
+      </div>
+      <div class="row" style="gap:8px">
+        <button class="btn" id="copyBtn">複製當前方案</button>
+        <button class="btn" id="exportBtn">匯出 JSON</button>
       </div>
     </div>
   </header>
 
-  <main class="max-w-6xl mx-auto px-4 py-6 grid grid-cols-1 lg:grid-cols-3 gap-6">
-    <!-- 左側控制 -->
-    <aside class="space-y-4">
-      <section class="card p-4">
-        <div class="text-sm font-semibold mb-2">選擇英雄類型</div>
-        <div id="roleList" class="grid grid-cols-1 sm:grid-cols-2 gap-3"></div>
+  <main class="wrap page">
+    <!-- 左側：類型＋搜尋＋全英雄 -->
+    <aside class="grid sidebar">
+      <section class="card pad">
+        <div class="section-title">選擇英雄類型</div>
+        <div class="list" id="roleList"></div>
       </section>
 
-      <section class="card p-4">
-        <div class="text-sm font-semibold">快速選英雄</div>
-        <input id="search" placeholder="輸入英雄名稱…（例：Lux、Zed）" class="mt-2 w-full rounded-xl border px-3 py-2 text-sm" />
-        <div id="heroList" class="mt-3 max-h-64 overflow-auto space-y-2"></div>
+      <section class="card pad">
+        <div class="section-title">快速選英雄</div>
+        <input class="field" id="search" placeholder="輸入英雄名稱…（例：拉克絲、Zed）" />
+        <div class="accent-line"></div>
+        <div class="hero-grid" id="heroGrid" aria-live="polite"></div>
       </section>
 
-      <section class="card p-4 text-xs text-slate-600">
-        <div class="font-semibold mb-1">備註</div>
-        <ul class="list-disc pl-4 space-y-1">
-          <li>介面採台版習慣用語；部分增幅名稱屬功能性「暫譯」，滑鼠移至名稱可見英名。</li>
-          <li>資料依 2025-10 PBE/社群彙整；正式服可能數值/名稱不同。</li>
-          <li>第 3 輪可能為金/棱彩；實戰請依候選彈性取捨。</li>
-          <li>若隊伍缺坦/缺輸出，優先補短板再追求極限強化。</li>
+      <section class="card pad">
+        <div class="section-title">備註</div>
+        <ul class="tip" style="margin:0; padding-left:18px">
+          <li>英雄繁中名來自 Riot 官方 Data Dragon（自動抓最新版本）。</li>
+          <li>縮圖優先使用 OP.GG 圖片網址，若載入失敗自動退回 DDragon。</li>
+          <li>增幅中文為功能性台版暫譯；英名滑鼠懸停可見。</li>
+          <li>第 3 輪可能為金/棱彩；請依當下候選與陣容彈性取捨。</li>
         </ul>
       </section>
     </aside>
 
-    <!-- 右側詳情 -->
-    <section class="lg:col-span-2 space-y-4">
-      <div class="card p-5">
-        <div class="flex items-center justify-between flex-wrap gap-3">
+    <!-- 右側：方案詳情 -->
+    <section class="grid main">
+      <div class="card pad">
+        <div class="row">
           <div>
-            <div class="text-xs uppercase tracking-wide text-slate-500">目前方案</div>
-            <div id="currentPlanTitle" class="text-xl font-bold">—</div>
+            <div class="tip">目前方案</div>
+            <div id="currentPlanTitle" class="num" style="font-size:20px; font-weight:800">—</div>
           </div>
-          <div class="flex gap-2 items-center">
-            <span class="badge badge-silver">SILVER</span>
-            <span class="badge badge-gold">GOLD</span>
-            <span class="badge badge-prismatic">PRISMATIC</span>
+          <div class="row" style="gap:6px">
+            <span class="badge silver">SILVER</span>
+            <span class="badge gold">GOLD</span>
+            <span class="badge prismatic">PRISMATIC</span>
           </div>
         </div>
       </div>
 
-      <div id="rounds" class="grid grid-cols-1 gap-4"></div>
+      <div class="grid" id="rounds"></div>
     </section>
   </main>
 
-  <footer class="max-w-6xl mx-auto px-4 pb-8 text-center text-[11px] text-slate-500">
-    單檔可直上 GitHub Pages / Cloudflare Pages。祝你大亂鬥開心！
-  </footer>
+  <div class="footer">資料僅供參考；實裝以遊戲內為準。來源：Mobalytics、OP.GG、Riot Data Dragon。</div>
 
   <script>
-  // ====== 資料區（台版 UI + 英名 tooltip）======
-  const ROLE_PLANS = {
-    mage: {
-      label: '法師 Mage', color: 'from-indigo-500 to-sky-500',
-      heroes: ['Lux','Brand','Ziggs','Seraphine','Vel\'Koz','Xerath','Swain','Zoe','Orianna','Syndra'],
-      rounds: [
-        { label: 'Round 1（建議：銀）', tier: 'silver', picks: [
-          { tw: 'AD 轉術', en:'ADAPt', note: 'AD→AP 混傷加成', tier: 'silver' },
-          { tw: '術力滿點', en:'Witchful Thinking', note: '+AP（20~80）', tier: 'silver' },
-          { tw: '霜魂幽縛', en:'Frost Wraith', note: '自動定根光環', tier: 'silver' },
-        ]},
-        { label: 'Round 2（建議：金）', tier: 'gold', picks: [
-          { tw: '魔彈齊發', en:'Magic Missile', note: '技能命中觸發飛彈真傷', tier: 'gold' },
-          { tw: '遞歸冷卻', en:'Recursion', note: '+60 Ability Haste', tier: 'gold' },
-          { tw: '疾步如飛', en:'With Haste', note: '依 AH 換移速', tier: 'gold' },
-        ]},
-        { label: 'Round 3（金 / 棱彩）', tier: 'hybrid', picks: [
-          { tw: '珠寶手套', en:'Jeweled Gauntlet', note: '法術可暴擊', tier: 'prismatic' },
-          { tw: '煉獄導管', en:'Infernal Conduit', note: '灼燒疊層並縮短 CD', tier: 'prismatic' },
-          { tw: '究極甦醒', en:'Ultimate Awakening', note: '放大後重置小技能', tier: 'prismatic' },
-        ]},
-        { label: 'Round 4（棱彩）', tier: 'prismatic', picks: [
-          { tw: '量子運算', en:'Quantum Computing', note: '後期近乎無限連放', tier: 'prismatic' },
-          { tw: '回歸基礎', en:'Back to Basics', note: '封大換 70AH 與泛用增傷', tier: 'prismatic' },
-          { tw: '最終形態', en:'Final Form', note: '放大後護盾/吸血/跑速', tier: 'prismatic' },
-        ]},
-      ]
-    },
-    assassin: {
-      label: '刺客 Assassin', color: 'from-fuchsia-500 to-rose-500',
-      heroes: ['Zed','Katarina','Kha\'Zix','Akali','Qiyana','Talon','Ekko'],
-      rounds: [
-        { label: 'Round 1（建議：銀）', tier: 'silver', picks: [
-          { tw: '影行者', en:'Shadow Runner', note: '位移/隱形後 +MS', tier: 'silver' },
-          { tw: '疾衝護身', en:'Swift and Safe', note: '位移後獲護盾', tier: 'silver' },
-          { tw: '殘暴者', en:'The Brutalizer', note: '+AD +AH +穿甲', tier: 'silver' },
-        ]},
-        { label: 'Round 2（建議：金）', tier: 'gold', picks: [
-          { tw: '閃現達人', en:'Flashy', note: '閃現彈藥/短CD', tier: 'gold' },
-          { tw: '處決者', en:'Executioner', note: '30%以下增傷＋擊殺返小技', tier: 'gold' },
-          { tw: '屠戮時刻', en:"It's Killing Time", note: '放大標記蓄傷引爆', tier: 'gold' },
-        ]},
-        { label: 'Round 3（金 / 棱彩）', tier: 'hybrid', picks: [
-          { tw: '劍舞', en:'Blade Waltz', note: '無目標位移連斬（無敵）', tier: 'prismatic' },
-          { tw: '縱躍專精', en:'Dashing', note: '位移類技能 +175AH', tier: 'prismatic' },
-          { tw: '最終形態', en:'Final Form', note: '放大後護盾/吸血/跑速', tier: 'prismatic' },
-        ]},
-        { label: 'Round 4（棱彩）', tier: 'prismatic', picks: [
-          { tw: '別碰我', en:"Can't Touch This", note: '放大獲 2s 無敵', tier: 'prismatic' },
-          { tw: '玻璃大砲', en:'Glass Cannon', note: '-30%HP 換 +12%真傷', tier: 'prismatic' },
-          { tw: '巨人殺手', en:'Giant Slayer', note: '變小+移速 對大型敵人增傷', tier: 'prismatic' },
-        ]},
-      ]
-    },
-    tank: {
-      label: '坦克 / 肉 Bruiser', color: 'from-emerald-500 to-lime-500',
-      heroes: ['Garen','Darius','Sion','Ornn','Dr. Mundo','Sett','Volibear','Sejuani'],
-      rounds: [
-        { label: 'Round 1（建議：銀）', tier: 'silver', picks: [
-          { tw: '鋼鐵意志', en:'Adamant', note: '定身疊雙抗', tier: 'silver' },
-          { tw: '要坦就坦', en:'Tank It or Leave It', note: '暴擊轉減傷（最多50%）', tier: 'silver' },
-          { tw: '護盾激勵', en:'Mighty Shield', note: '獲盾時 +自適應力', tier: 'silver' },
-        ]},
-        { label: 'Round 2（建議：金）', tier: 'gold', picks: [
-          { tw: '堅忍不拔', en:'Perseverance', note: '巨幅回復（殘血更高）', tier: 'gold' },
-          { tw: '黎明守護', en:"Dawnbringer's Resolve", note: '半血觸發大治療', tier: 'gold' },
-          { tw: '坦克引擎', en:'Tank Engine', note: '擊殺疊體型與最大生命', tier: 'gold' },
-        ]},
-        { label: 'Round 3（金 / 棱彩）', tier: 'hybrid', picks: [
-          { tw: '巨像之勇', en:'Courage of the Colossus', note: '定身後獲大護盾', tier: 'prismatic' },
-          { tw: '巨靈化身', en:'Goliath', note: '巨大化：+HP +自適應力', tier: 'prismatic' },
-          { tw: '蛋白奶昔', en:'Protein Shake', note: '回覆量提升（依雙抗）', tier: 'prismatic' },
-        ]},
-        { label: 'Round 4（棱彩）', tier: 'prismatic', picks: [
-          { tw: '回歸基礎', en:'Back to Basics', note: '封大換泛用增強', tier: 'prismatic' },
-          { tw: '萬魂加持', en:'Omni Soul', note: '隨機三龍魂', tier: 'prismatic' },
-          { tw: '最終形態', en:'Final Form', note: '放大後護盾/移速續戰', tier: 'prismatic' },
-        ]},
-      ]
-    },
-    adc: {
-      label: '射手 Marksman', color: 'from-amber-500 to-orange-500',
-      heroes: ['Ezreal','Jinx','Caitlyn','Kai\'Sa','Lucian','Ashe','Xayah','Tristana'],
-      rounds: [
-        { label: 'Round 1（建議：銀）', tier: 'silver', picks: [
-          { tw: '身手敏捷', en:'Deft', note: '+60% 攻速', tier: 'silver' },
-          { tw: '神射手', en:'Scoped Weapons', note: '+射程（近戰+75/遠程+50）', tier: 'silver' },
-          { tw: '颶風箭幕', en:'Typhoon', note: '普攻彈射觸發 on-hit', tier: 'silver' },
-        ]},
-        { label: 'Round 2（建議：金）', tier: 'gold', picks: [
-          { tw: '致命節奏*', en:'Critical Rhythm', note: '爆擊給攻速，可疊', tier: 'gold' },
-          { tw: '就是要爆', en:"It's Critical", note: '暴擊率 50%', tier: 'gold' },
-          { tw: '穿雲裂甲', en:'Thread the Needle', note: '穿甲/穿魔 18%', tier: 'gold' },
-        ]},
-        { label: 'Round 3（金 / 棱彩）', tier: 'hybrid', picks: [
-          { tw: '雙持射擊', en:'Dual Wield', note: '普攻二段射（帶 on-hit）', tier: 'prismatic' },
-          { tw: '連轟扳機', en:'Fan the Hammer', note: '每攻擊追加 5 向彈幕', tier: 'prismatic' },
-          { tw: '金雨降臨', en:'Goldrend', note: '命中給移速並掉金幣（CD）', tier: 'prismatic' },
-        ]},
-        { label: 'Round 4（棱彩）', tier: 'prismatic', picks: [
-          { tw: '巨人殺手', en:'Giant Slayer', note: '對大型敵人增傷＋移速', tier: 'prismatic' },
-          { tw: '玻璃大砲', en:'Glass Cannon', note: '-HP 換真傷輸出', tier: 'prismatic' },
-          { tw: '最終形態', en:'Final Form', note: '放大後護盾/嗜血/跑速', tier: 'prismatic' },
-        ]},
-      ]
-    },
-    support: {
-      label: '輔助 Enchanter / Utility', color: 'from-teal-500 to-cyan-500',
-      heroes: ['Soraka','Sona','Nami','Janna','Rakan','Yuumi','Taric','Milio'],
-      rounds: [
-        { label: 'Round 1（建議：銀）', tier: 'silver', picks: [
-          { tw: '急救包', en:'First Aid Kit', note: '治癒效果 +20%', tier: 'silver' },
-          { tw: '善循環', en:'Virtuous Cycle', note: '奶→盾、盾→奶', tier: 'silver' },
-          { tw: '音爆共鳴', en:'Sonic Boom', note: '幫隊友時周邊敵人受真傷/緩速', tier: 'silver' },
-        ]},
-        { label: 'Round 2（建議：金）', tier: 'gold', picks: [
-          { tw: '全力支援', en:'All for You', note: '對友方護盾/治癒 +30%', tier: 'gold' },
-          { tw: '聖焰灼身', en:'Holy Fire', note: '治/盾對近敵灼燒', tier: 'gold' },
-          { tw: '召喚雙符', en:'Keystone Conjurer', note: 'Aery + Comet', tier: 'gold' },
-        ]},
-        { label: 'Round 3（金 / 棱彩）', tier: 'hybrid', picks: [
-          { tw: '天墜護佑', en:'Empyrean Promise', note: '瞬移到隊友給大護盾', tier: 'prismatic' },
-          { tw: '神聖干預', en:'Divine Intervention', note: '降星幕賦予短暫無敵', tier: 'gold' },
-          { tw: '風語者祝福', en:"Windspeaker's Blessing", note: '治/盾同時給雙抗', tier: 'prismatic' },
-        ]},
-        { label: 'Round 4（棱彩）', tier: 'prismatic', picks: [
-          { tw: '風語者祝福', en:"Windspeaker's Blessing", note: '團隊增益上限化', tier: 'prismatic' },
-          { tw: '最終形態', en:'Final Form', note: '放大後護盾/跑速推團', tier: 'prismatic' },
-          { tw: '萬魂加持', en:'Omni Soul', note: '三龍魂泛用收益', tier: 'prismatic' },
-        ]},
-      ]
-    },
+  // ========= 來源參考 =========
+  // - Data Dragon 官方文件： https://developer.riotgames.com/docs/lol （champion.json / zh_TW） [用於英雄繁中名與列表]
+  // - OP.GG 英雄頁：https://op.gg/lol/champions  [用於縮圖 CDN 基本路徑]
+  // - Mobalytics ARAM Mayhem Augments：本文整合銀/金/棱彩清單（功能性台版暫譯）
+
+  // ========= 英雄載入（自動最新版 + zh_TW 名稱） =========
+  const state = {
+    role: 'mage',
+    heroKey: null,         // DDragon champion key（如 Ahri）
+    heroNameTw: null,      // 繁中名
+    version: null,         // ddragon 版本（如 15.21.1）
+    champions: [],         // 全部英雄 {key,id,tw,en,imageFull,tags,role,iconUrl}
   };
 
-  const ALL_HEROES = Object.entries(ROLE_PLANS).flatMap(([role, cfg]) => cfg.heroes.map(h => ({ name: h, role })));
+  const ROLE_META = {
+    mage:     { label:'法師 Mage',       colors:['#3d46ff','#00e0ff'] },
+    assassin: { label:'刺客 Assassin',    colors:['#ff3d78','#f093fb'] },
+    tank:     { label:'坦克 / 肉 Bruiser',colors:['#05d47a','#bafc8b'] },
+    adc:      { label:'射手 Marksman',    colors:['#ffb020','#ff3d78'] },
+    support:  { label:'輔助 Enchanter',   colors:['#00e0ff','#7c4dff'] },
+    fighter:  { label:'鬥士 Fighter',     colors:['#00ffa3','#00e0ff'] }, // 額外分類，做為坦/輸出之間的中間態
+  };
 
-  // ====== DOM 綁定 ======
-  const roleList = document.getElementById('roleList');
-  const heroList = document.getElementById('heroList');
-  const search = document.getElementById('search');
-  const currentPlanTitle = document.getElementById('currentPlanTitle');
-  const roundsEl = document.getElementById('rounds');
-  const copyBtn = document.getElementById('copyBtn');
-  const exportBtn = document.getElementById('exportBtn');
+  // DDragon → 我們的 role 映射
+  const TAG2ROLE = {
+    'Mage':'mage','Assassin':'assassin','Tank':'tank','Marksman':'adc','Support':'support','Fighter':'fighter'
+  };
 
-  let state = { role: 'mage', hero: 'Lux' };
-
-  function badgeTier(t){
-    if(t==='prismatic') return '<span class="badge badge-prismatic">PRISMATIC</span>';
-    if(t==='gold') return '<span class="badge badge-gold">GOLD</span>';
-    if(t==='hybrid') return '<span class="badge badge-gold">GOLD</span> / <span class="badge badge-prismatic">PRISMATIC</span>';
-    return '<span class="badge badge-silver">SILVER</span>';
+  // 嘗試把 DDragon 的 image.full 轉成 OP.GG 圖片檔名（大多一致）
+  function deriveOpggName(imageFull){
+    // e.g. "Aatrox.png" → "Aatrox"
+    let base = (imageFull||'').replace(/\.png$/i,'');
+    // 常見特殊字修正（OP.GG/DDRAGON 命名偶有差異）
+    const map = {
+      'Chogath':'Chogath','Velkoz':'Velkoz','Leblanc':'Leblanc','Kaisa':'Kaisa','Khazix':'Khazix',
+      'KogMaw':'KogMaw','KSante':'KSante','Belveth':'Belveth','Nunu':'Nunu','Wukong':'Wukong',
+      'Renata':'Renata','JarvanIV':'JarvanIV','DrMundo':'DrMundo','MissFortune':'MissFortune','MonkeyKing':'Wukong'
+    };
+    if (map[base]) return map[base];
+    return base;
   }
 
+  function opggIconUrl(opggName, size=84){
+    // 主路徑（含壓縮參數），v 參數可略；若 403/404 會 fallback
+    return `https://opgg-static.akamaized.net/meta/images/lol/champion/${opggName}.png?image=q_auto:good,w_${size}`;
+  }
+  function opggIconUrlAlt(opggName){
+    return `https://opgg-static.akamaized.net/images/lol/champion/${opggName}.png`;
+  }
+
+  function ddragonIconUrl(ver, imageFull){
+    return `https://ddragon.leagueoflegends.com/cdn/${ver}/img/champion/${imageFull}`;
+  }
+
+  async function loadChampions(){
+    // 1) 取最新版本
+    const ver = await fetch('https://ddragon.leagueoflegends.com/api/versions.json')
+      .then(r=>r.json()).then(arr=>arr[0]);
+    state.version = ver;
+    // 2) 取 zh_TW champion.json
+    const data = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ver}/data/zh_TW/champion.json`).then(r=>r.json());
+    const champs = Object.values(data.data); // [{id, key, name, image:{full}, tags:[...]}, ...]
+    state.champions = champs.map(c=>{
+      const role = TAG2ROLE[c.tags?.[0]] || 'fighter';
+      const opggName = deriveOpggName(c.image.full);
+      const iconPrimary = opggIconUrl(opggName, 84);
+      const iconAlt = opggIconUrlAlt(opggName);
+      const iconFallback = ddragonIconUrl(ver, c.image.full);
+      return {
+        key: c.id, en: c.id, tw: c.name, role, tags: c.tags||[],
+        imageFull: c.image.full,
+        icons: [iconPrimary, iconAlt, iconFallback],
+      };
+    }).sort((a,b)=> a.tw.localeCompare(b.tw,'zh-Hant'));
+    // 預設選一個
+    if(!state.heroKey){ state.heroKey = state.champions[0].key; state.heroNameTw = state.champions[0].tw; }
+    renderAll();
+  }
+
+  // ========= 增幅資料（功能性台版暫譯） =========
+  // tier: silver | gold | prismatic
+  // 說明：此清單整理自 Mobalytics ARAM Mayhem Augments（2025-10），屬性與數值以遊戲內為準。
+  const AUGMENTS = [
+    // —— Silver（一部分示例；下方會逐一補齊 —— //
+    {en:'ADAPt',               tw:'AD 轉術',          tier:'silver',  note:'AD→AP 混傷加成 + 額外 AP'},
+    {en:'Adamant',             tw:'鋼鐵意志',          tier:'silver',  note:'定身/禁錮敵人時疊雙抗（10秒）'},
+    {en:'Blunt Force',         tw:'鈍力壓制',          tier:'silver',  note:'+15% 攻擊力'},
+    {en:'Buff Buddies',        tw:'增益夥伴',          tier:'silver',  note:'同時獲得紅/藍 BUFF'},
+    {en:'Deft',                tw:'身手敏捷',          tier:'silver',  note:'+60% 攻速'},
+    {en:'Dive Bomber',         tw:'殉爆轟擊',          tier:'silver',  note:'死亡時爆炸，以最大生命% 真傷'},
+    {en:'Don’t Blink',         tw:'別眨眼',            tier:'silver',  note:'你比對手更快時按差距加成傷害'},
+    {en:'Erosion',             tw:'侵蝕',              tier:'silver',  note:'命中疊破甲/破魔（最多30%）'},
+    {en:'Escape Plan',         tw:'緊急應變',          tier:'silver',  note:'35% 血量觸發大護盾/移速/縮小'},
+    {en:'Fetch',               tw:'雪球支援',          tier:'silver',  note:'對雪球標記目標獲移速；可撿隊友雪球'},
+    {en:'First Aid Kit',       tw:'急救包',            tier:'silver',  note:'+20% 治療/護盾效果'},
+    {en:'Flash 2',             tw:'雙閃',              tier:'silver',  note:'獲得第二個閃現'},
+    {en:'Flashbang',           tw:'閃光震撼',          tier:'silver',  note:'閃現造成範圍傷害與緩速；每次死亡重置'},
+    {en:'Frost Wraith',        tw:'霜魂幽縛',          tier:'silver',  note:'每 6.5 秒自動對近敵定根'},
+    {en:'Goredrink',           tw:'嗜血鍊鋸',          tier:'silver',  note:'+15% 全能吸血'},
+    {en:'Guilty Pleasure',     tw:'罪惡快感',          tier:'silver',  note:'定身/禁錮回復生命（依最大生命）'},
+    {en:'Hat on a Hat',        tw:'帽上加帽',          tier:'silver',  note:'帽類頭飾提高 AP/MR，Cappa Juice 提供小量屬性'},
+    {en:'Heavy Hitter',        tw:'重拳出擊',          tier:'silver',  note:'普攻造成額外最大生命% 物傷'},
+    {en:'Homeguard',           tw:'回城疾走',          tier:'silver',  note:'+100% 移速，受傷 3 秒內失效'},
+    {en:'Ice Cold',            tw:'極寒',              tier:'silver',  note:'你的緩速額外減速 100 移速'},
+    {en:'Infernal Soul',       tw:'煉獄龍魂',          tier:'silver',  note:'獲得煉獄龍魂效果'},
+    {en:'Leg Day',             tw:'腿日',              tier:'silver',  note:'+50 移速 +40% 緩速抗性'},
+    {en:'Light ’em Up',        tw:'點燃它們',          tier:'silver',  note:'每第 4 次普攻造成額外魔傷'},
+    {en:'Mighty Shield',       tw:'護盾激勵',          tier:'silver',  note:'獲得護盾後 +自適應力（短 CD）'},
+    {en:'Mind to Matter',      tw:'法轉體',            tier:'silver',  note:'獲得總法力 50% 的生命值'},
+    {en:'Mountain Soul',       tw:'山脈龍魂',          tier:'silver',  note:'獲得山脈龍魂'},
+    {en:'Ocean Soul',          tw:'海洋龍魂',          tier:'silver',  note:'獲得海洋龍魂'},
+    {en:'Poltergeist',         tw:'靈魅疾行',          tier:'silver',  note:'得到召喚師法術：同時施放屏障+鬼步'},
+    {en:'ReEnergize',          tw:'充能迴路',          tier:'silver',  note:'更換攻擊目標時重置蓄能，並按目標當前生命% 造成魔傷'},
+    {en:'Repulsor',            tw:'彈反力場',          tier:'silver',  note:'60%與30%血量時擊退附近敵人'},
+    {en:'Scoped Weapons',      tw:'神射手',            tier:'silver',  note:'+75 射程（近戰）/ +50（遠程）'},
+    {en:'Self Destruct',       tw:'自爆通勤',          tier:'silver',  note:'通過傳送/地道後自綁炸彈（延時爆炸）'},
+    {en:'Shadow Runner',       tw:'影行者',            tier:'silver',  note:'位移/閃現/脫隱後 +300 移速（2秒）'},
+    {en:'Slap Around',         tw:'巴掌舞',            tier:'silver',  note:'定身疊自適應力；死亡掉層'},
+    {en:'Sonic Boom',          tw:'音爆共鳴',          tier:'silver',  note:'你為隊友加成時，隊友身邊敵人受真傷與緩速'},
+    {en:'Spin to Win',         tw:'旋風制勝',          tier:'silver',  note:'旋轉技能 +30 技能急速與 +30% 傷害'},
+    {en:'Swift and Safe',      tw:'疾衝護身',          tier:'silver',  note:'位移後獲護盾（短 CD）'},
+    {en:'Tank It or Leave It', tw:'要坦就坦',          tier:'silver',  note:'暴擊率轉為「格擋幾率」，最多 50% 觸發 20% 減傷'},
+    {en:'The Brutalizer',      tw:'殘暴者',            tier:'silver',  note:'+AD +AH +穿甲'},
+    {en:'Tormentor',           tw:'折磨者',            tier:'silver',  note:'定身施加無限疊的灼燒'},
+    {en:'Transmute: Gold',     tw:'轉化：金',          tier:'silver',  note:'獲得隨機金色增幅'},
+    {en:'Typhoon',             tw:'颶風箭幕',          tier:'silver',  note:'普攻額外射向附近一個目標並套用 on-hit'},
+    {en:'Ultimate Unstoppable',tw:'究極不屈',          tier:'silver',  note:'放大後短暫免控（CD）'},
+    {en:'Upgrade Cutlass',     tw:'升級短劍',          tier:'silver',  note:'幽靈短劍/Lifeline 冷卻縮短並在啟動時增傷'},
+    {en:'Upgrade Immolate',    tw:'升級灼燒',          tier:'silver',  note:'日炎/中空輻耀擊中給金幣，另贈 250g'},
+    {en:'Upgrade Zhonya’s',    tw:'升級中婭',          tier:'silver',  note:'中婭 90 秒 CD，時停中可移動'},
+    {en:'Upgrade Collector',   tw:'升級收藏家',        tier:'silver',  note:'處決加錢，門檻逐次提升'},
+    {en:'Veil of Warding',     tw:'驅咒之幕',          tier:'silver',  note:'獲得法術護盾（15 秒 CD）'},
+    {en:'Virtuous Cycle',      tw:'善循環',            tier:'silver',  note:'治療轉護盾／護盾轉治療（+20%）'},
+    {en:'Wind Beneath Blade',  tw:'風馭之刃',          tier:'silver',  note:'每點穿甲/穿魔轉移速加成'},
+    {en:'Witchful Thinking',   tw:'術力滿點',          tier:'silver',  note:'+AP（20~80）'},
+    {en:'escAPADe',            tw:'術轉攻',            tier:'silver',  note:'AP→AD 轉換並 +15% AD'},
+
+    // —— Gold —— //
+    {en:'All for You',         tw:'全力支援',          tier:'gold',    note:'給隊友的治癒/護盾 +30%'},
+    {en:'Apex Inventor',       tw:'頂尖工匠',          tier:'gold',    note:'+100 裝備急速'},
+    {en:'Big Brain',           tw:'大腦袋',            tier:'gold',    note:'獲等同 AP 的護盾；死亡重置'},
+    {en:'Bread and Butter',    tw:'麵包與奶油',        tier:'gold',    note:'+100 Q 技能急速'},
+    {en:'Bread and Cheese',    tw:'麵包與起司',        tier:'gold',    note:'+100 E 技能急速'},
+    {en:'Bread and Jam',       tw:'麵包與果醬',        tier:'gold',    note:'+100 W 技能急速'},
+    {en:'Bread Sandwich',      tw:'終極三明治',        tier:'gold',    note:'集滿三個 Bread → +250 終極急速 等'},
+    {en:'Celestial Body',      tw:'天體之軀',          tier:'gold',    note:'+1250 HP 但 -10% 輸出'},
+    {en:'Cheating',            tw:'作弊回城',          tier:'gold',    note:'可使用回城購物與抽增幅'},
+    {en:'Critical Healing',    tw:'致療一擊',          tier:'gold',    note:'+25%爆擊且治癒/護盾可爆擊'},
+    {en:'Critical Rhythm',     tw:'致命節奏*',         tier:'gold',    note:'爆擊給攻速（可疊）'},
+    {en:'Dawnbringer’s Resolve',tw:'黎明守護',         tier:'gold',    note:'半血觸發恢復（CD，死亡重置）'},
+    {en:'Demon’s Dance',       tw:'惡魔之舞',          tier:'gold',    note:'同時擁有 兩個關鍵符文（天賦）'},
+    {en:'Divine Intervention',  tw:'神聖干預',         tier:'gold',    note:'呼喚星幕 2.5 秒範圍無敵（CD）'},
+    {en:'Ethereal Weapon',     tw:'以太武裝',          tier:'gold',    note:'技能可觸發 on-hit（每目標 CD）'},
+    {en:'Executioner',         tw:'處決者',            tier:'gold',    note:'對 30% 以下增傷，擊殺重置小技'},
+    {en:'Firebrand',           tw:'火印',              tier:'gold',    note:'普攻附加灼燒（可疊）'},
+    {en:'Flashy',              tw:'閃現達人',          tier:'gold',    note:'閃現改為彈藥制；短 CD'},
+    {en:'From Beginning to End',tw:'始終如一',         tier:'gold',    note:'同時擁有 兩個打野/收割符文'},
+    {en:'Get Excited',         tw:'我超嗨',            tier:'gold',    note:'擊殺獲大移速與攻速'},
+    {en:'Holy Fire',           tw:'聖焰灼身',          tier:'gold',    note:'治/盾時對近敵施加灼燒（可疊）'},
+    {en:'Impassable',          tw:'冰霜壁壘',          tier:'gold',    note:'同時擁有 後續/餘震兩個符文'},
+    {en:'It’s Critical',       tw:'就是要爆',          tier:'gold',    note:'爆擊率直上 50%'},
+    {en:'It’s Killing Time',   tw:'屠戮時刻',          tier:'gold',    note:'放大標記蓄傷；5 秒引爆（CD）'},
+    {en:'Keystone Conjurer',   tw:'召喚雙符',          tier:'gold',    note:'同時擁有 Aery + Comet'},
+    {en:'Lightning Strikes',   tw:'電光連擊',          tier:'gold',    note:'+20% 攻速；達 4.0 AS 後 on-hit 魔傷'},
+    {en:'Magic Missile',       tw:'魔彈齊發',          tier:'gold',    note:'技能命中追加 3 枚飛彈（以最大血% 真傷，隨距離成長，CD）'},
+    {en:'Marksmage',           tw:'射術法師',          tier:'gold',    note:'普攻追加AP係數的物傷'},
+    {en:'Minionmancer',        tw:'傀儡增幅',          tier:'gold',    note:'召喚物體型/血量/傷害 +40%'},
+    {en:'Nightstalking',       tw:'夜行者',            tier:'gold',    note:'3 秒內參戰擊殺 → 短暫隱形'},
+    {en:'Ok Boomerang',        tw:'OK 迴旋鏢',         tier:'gold',    note:'每 10 秒自動投擲迴旋鏢（自適應傷害）'},
+    {en:'Outlaw’s Grit',       tw:'亡命之志',          tier:'gold',    note:'位移後 +雙抗，可疊 5 層'},
+    {en:'Overflow',            tw:'溢流',              tier:'gold',    note:'耗魔翻倍，但治癒/護盾/傷害 按總魔力加成'},
+    {en:'Perseverance',        tw:'堅忍不拔',          tier:'gold',    note:'巨幅 HP5；殘血時更高'},
+    {en:'Quest: Steel Your Heart', tw:'任務：鋼鐵之心', tier:'gold',   note:'Heartsteel ≥350 層 → 直接三倍'},
+    {en:'Rabble Rousing',      tw:'群起鬥毆',          tier:'gold',    note:'施放技能回復（依最大生命）'},
+    {en:'Recursion',           tw:'遞歸冷卻',          tier:'gold',    note:'+60 技能急速'},
+    {en:'Restless Restoration', tw:'移動療癒',         tier:'gold',    note:'每移動距離回復生命'},
+    {en:'Scopier Weapons',     tw:'更神射',            tier:'gold',    note:'+200 射程（近）/ +100（遠）'},
+    {en:'Searing Dawn',        tw:'曙光灼燒',          tier:'gold',    note:'技能標記 → 隊友下一擊追加魔傷'},
+    {en:'Shrink Ray',          tw:'縮小射線',          tier:'gold',    note:'普攻降低敵人傷害（3秒）'},
+    {en:'Skilled Sniper',      tw:'神射手訓練',        tier:'gold',    note:'700+ 距離命中 → 退 80% 冷卻'},
+    {en:'Slow and Steady',     tw:'慢即是穩',          tier:'gold',    note:'攻速固定 0.625；按基礎攻速換 AD'},
+    {en:'Snowball Upgrade',    tw:'雪球升級',          tier:'gold',    note:'雪球 +100 急速；命中顯示區域並上緩與 DOT'},
+    {en:'Soul Siphon',         tw:'靈魂虹吸',          tier:'gold',    note:'+25% 爆擊且爆擊吸血'},
+    {en:'Spiritual Purification', tw:'靈能淨化',       tier:'gold',    note:'擊殺處爆炸並大幅緩速'},
+    {en:'Tank Engine',         tw:'坦克引擎',          tier:'gold',    note:'擊殺疊體型與最大生命（死亡掉層）'},
+    {en:'Thread the Needle',   tw:'穿雲裂甲',          tier:'gold',    note:'+18% 穿甲與穿魔'},
+    {en:'Transmute: Prismatic',tw:'轉化：棱彩',        tier:'gold',    note:'獲得隨機棱彩增幅'},
+    {en:'Twice Thrice',        tw:'雙倍三連',          tier:'gold',    note:'每第 3 次普攻，on-hit 觸發第二次'},
+    {en:'Upgrade Hubris',      tw:'升級傲慢',          tier:'gold',    note:'擊殺回復 +移速；另贈金幣'},
+    {en:'Upgrade Infinity Edge',tw:'升級無盡',         tier:'gold',    note:'+500g 並 +25% 爆擊；爆傷隨爆率浮動'},
+    {en:'Upgrade Sheen',       tw:'升級耀光',          tier:'gold',    note:'咒刃 → 額外目標最大 HP 物傷並自療'},
+    {en:'Vampirism',           tw:'嗜血術',            tier:'gold',    note:'禁用隊友治癒/回復，但 +30% 全能吸血'},
+    {en:'Vulnerability',       tw:'易傷暴擊',          tier:'gold',    note:'+25% 爆擊；道具/持續傷害可爆擊'},
+    {en:'With Haste',          tw:'疾步如飛',          tier:'gold',    note:'依技能急速轉移速'},
+
+    // —— Prismatic —— //
+    {en:'Baby Kitty',          tw:'黏踢踢寶貓',        tier:'prismatic', note:'靠近指定隊友獲巨量移速/治療加成'},
+    {en:'Back to Basics',      tw:'回歸基礎',          tier:'prismatic', note:'封印大招；+35% 技能傷/治/盾 +70AH'},
+    {en:'Biggest Snowball Ever', tw:'超巨雪球',        tier:'prismatic', note:'雪球變大穿兵、上緩/擊飛並附加傷害'},
+    {en:'Blade Waltz',         tw:'劍舞',              tier:'prismatic', note:'獲召喚師法術「劍舞」：無目標連斬並短暫無敵'},
+    {en:'Can’t Touch This',    tw:'別碰我',            tier:'prismatic', note:'放大獲 2 秒無敵（CD）'},
+    {en:'Circle of Death',     tw:'死亡環',            tier:'prismatic', note:'你造成的治癒 → 70% 轉成對最近敵人的傷害'},
+    {en:'Clown College',       tw:'小丑學院',          tier:'prismatic', note:'背刺增傷、獲「欺詐」隱身重擊；死亡時真傷恐懼'},
+    {en:'Courage of the Colossus', tw:'巨像之勇',     tier:'prismatic', note:'定身後獲大護盾（依等級/最大血）'},
+    {en:'Cruelty',             tw:'無情',              tier:'prismatic', note:'定身時從天降彗星造成範圍傷'},
+    {en:'Dashing',             tw:'縱躍專精',          tier:'prismatic', note:'所有位移類技能 +175AH'},
+    {en:'Draw Your Sword',     tw:'拔劍吧',            tier:'prismatic', note:'轉為近戰並大幅提高 AD/HP/AS/吸血/移速'},
+    {en:'Dual Wield',          tw:'雙持射擊',          tier:'prismatic', note:'普攻追加第二發（40% on-hit）'},
+    {en:'Empyrean Promise',    tw:'天墜護佑',          tier:'prismatic', note:'瞬移到友方並給超大護盾'},
+    {en:'Eureka',              tw:'靈光一現',          tier:'prismatic', note:'按 AP 比例獲得技能急速'},
+    {en:'Fan the Hammer',      tw:'連轟扳機',          tier:'prismatic', note:'普攻向四方再發 5 發，可爆擊/套 on-hit'},
+    {en:'Feel the Burn',       tw:'群體引燃',          tier:'prismatic', note:'對附近所有敵人同時點燃與虛弱'},
+    {en:'Fey Magic',           tw:'妖精魔法',          tier:'prismatic', note:'大招命中會變形（羊化）2 秒'},
+    {en:'Final Form',          tw:'最終形態',          tier:'prismatic', note:'放大獲巨盾/全能吸血/移速（CD）'},
+    {en:'Gash',                tw:'裂甲真傷',          tier:'prismatic', note:'普攻附加真傷（近戰/遠程數值不同）'},
+    {en:'Giant Slayer',        tw:'巨人殺手',          tier:'prismatic', note:'自身變小加速；對更巨大的敵人增傷'},
+    {en:'Glass Cannon',        tw:'玻璃大砲',          tier:'prismatic', note:'-30% 最大 HP，+12% 真傷輸出'},
+    {en:'Goldrend',            tw:'淘金者',            tier:'prismatic', note:'命中給金幣與移速（對同一人有 CD）'},
+    {en:'Goliath',             tw:'巨靈化身',          tier:'prismatic', note:'+體型 +生命 +自適應力'},
+    {en:'Infernal Conduit',    tw:'煉獄導管',          tier:'prismatic', note:'技能施加無限疊灼燒；灼燒每跳縮短冷卻'},
+    {en:'Jeweled Gauntlet',    tw:'珠寶手套',          tier:'prismatic', note:'法術可暴擊且提高爆傷'},
+    {en:'King Me',             tw:'加冕吧',            tier:'prismatic', note:'首次到敵方傳輸點且身上有傳奇裝 → 升級並給隨機棱彩'},
+    {en:'Laser Heal',          tw:'治療雷射',          tier:'prismatic', note:'持續對友傷/治；對敵造成傷害與緩速'},
+    {en:'Mad Scientist',       tw:'瘋狂科學家',        tier:'prismatic', note:'每次復活隨機變大（增屬性）或變小（+AH/+移速）'},
+    {en:'Master of Duality',   tw:'雙修大師',          tier:'prismatic', note:'普攻疊 AP；技能疊 AD（無限疊）'},
+    {en:'Mystic Punch',        tw:'秘拳',              tier:'prismatic', note:'on-hit 按剩餘冷卻比例縮短小技'},
+    {en:'Ominous Pact',        tw:'不祥之約',          tier:'prismatic', note:'低血時大幅 AP/移速/吸血；施法會扣血'},
+    {en:'Omni Soul',           tw:'萬魂加持',          tier:'prismatic', note:'一次獲得 3 個隨機龍魂'},
+    {en:'Protein Shake',       tw:'蛋白奶昔',          tier:'prismatic', note:'回覆強化（依雙抗比例）'},
+    {en:'Quantum Computing',   tw:'量子運算',          tier:'prismatic', note:'每 30 秒自動斬擊；外圈附加大緩與%傷'},
+    {en:'Quest: Sneakerhead',  tw:'任務：鞋頭',        tier:'prismatic', note:'依 6 種鞋子條件完成連環任務'},
+    {en:'Quest: Urf’s Champion',tw:'任務：烏爾夫勇士', tier:'prismatic', note:'22 擊殺參與 → 金鏟子'},
+    {en:'Quest: Wooglet’s Witchcap', tw:'任務：巫巫帽', tier:'prismatic', note:'滿足帽子條件 → 獲 Wooglet’s'},
+    {en:'Scopiest Weapons',    tw:'最神射',            tier:'prismatic', note:'+250 射程（近）/ +150（遠）'},
+    {en:'Slow Cooker',         tw:'慢燉之火',          tier:'prismatic', note:'每秒對附近敵人上無限疊灼燒'},
+    {en:'Snowball Roulette',   tw:'雪球輪盤',          tier:'prismatic', note:'雪球命中時對你/對手施放隨機召喚師法術'},
+    {en:'Symphony of War',     tw:'戰爭交響',          tier:'prismatic', note:'同時擁有 強攻 + 征服者'},
+    {en:'Tap Dancer',          tw:'踢踏舞',            tier:'prismatic', note:'普攻給移速（無限疊）並按總 MS 給攻速'},
+    {en:'Transmute: Chaos',    tw:'轉化：混沌',        tier:'prismatic', note:'一次拿兩個隨機增幅（70% 金 / 30% 銀）'},
+    {en:'Ultimate Awakening',  tw:'究極甦醒',          tier:'prismatic', note:'放大後重置所有小技能（CD）'},
+    {en:'Ultimate Revolution', tw:'究極輪迴',          tier:'prismatic', note:'放大後重整大招（CD；死亡重置）'},
+    {en:'Upgrade Mikael’s Blessing', tw:'升級米凱爾',   tier:'prismatic', note:'米凱爾降 CD 並改為範圍淨化+治療+韌性'},
+    {en:'Windspeaker’s Blessing', tw:'風語者祝福',      tier:'prismatic', note:'治/盾同時給雙抗（範圍）'},
+  ];
+
+  // ========= 角色方案（沿用你原本的四輪建議，會套到所有英雄） =========
+  const ROLE_PLANS = {
+    mage: [
+      { label:'Round 1（建議：銀）', tier:'silver', picks:[ 'ADAPt','Witchful Thinking','Frost Wraith' ] },
+      { label:'Round 2（建議：金）', tier:'gold',   picks:[ 'Magic Missile','Recursion','With Haste' ] },
+      { label:'Round 3（金 / 棱彩）', tier:'prismatic', picks:[ 'Jeweled Gauntlet','Infernal Conduit','Ultimate Awakening' ] },
+      { label:'Round 4（棱彩）',     tier:'prismatic', picks:[ 'Quantum Computing','Back to Basics','Final Form' ] },
+    ],
+    assassin: [
+      { label:'Round 1（建議：銀）', tier:'silver', picks:[ 'Shadow Runner','Swift and Safe','The Brutalizer' ] },
+      { label:'Round 2（建議：金）', tier:'gold',   picks:[ 'Flashy','Executioner',"It’s Killing Time" ] },
+      { label:'Round 3（金 / 棱彩）', tier:'prismatic', picks:[ 'Blade Waltz','Dashing','Final Form' ] },
+      { label:'Round 4（棱彩）',     tier:'prismatic', picks:[ "Can’t Touch This",'Glass Cannon','Giant Slayer' ] },
+    ],
+    tank: [
+      { label:'Round 1（建議：銀）', tier:'silver', picks:[ 'Adamant','Tank It or Leave It','Mighty Shield' ] },
+      { label:'Round 2（建議：金）', tier:'gold',   picks:[ 'Perseverance',"Dawnbringer’s Resolve",'Tank Engine' ] },
+      { label:'Round 3（金 / 棱彩）', tier:'prismatic', picks:[ 'Courage of the Colossus','Goliath','Protein Shake' ] },
+      { label:'Round 4（棱彩）',     tier:'prismatic', picks:[ 'Back to Basics','Omni Soul','Final Form' ] },
+    ],
+    adc: [
+      { label:'Round 1（建議：銀）', tier:'silver', picks:[ 'Deft','Scoped Weapons','Typhoon' ] },
+      { label:'Round 2（建議：金）', tier:'gold',   picks:[ 'Critical Rhythm',"It’s Critical",'Thread the Needle' ] },
+      { label:'Round 3（金 / 棱彩）', tier:'prismatic', picks:[ 'Dual Wield','Fan the Hammer','Goldrend' ] },
+      { label:'Round 4（棱彩）',     tier:'prismatic', picks:[ 'Giant Slayer','Glass Cannon','Final Form' ] },
+    ],
+    support: [
+      { label:'Round 1（建議：銀）', tier:'silver', picks:[ 'First Aid Kit','Virtuous Cycle','Sonic Boom' ] },
+      { label:'Round 2（建議：金）', tier:'gold',   picks:[ 'All for You','Holy Fire','Keystone Conjurer' ] },
+      { label:'Round 3（金 / 棱彩）', tier:'prismatic', picks:[ 'Empyrean Promise','Divine Intervention',"Windspeaker’s Blessing" ] },
+      { label:'Round 4（棱彩）',     tier:'prismatic', picks:[ "Windspeaker’s Blessing",'Final Form','Omni Soul' ] },
+    ],
+    fighter: [
+      { label:'Round 1（建議：銀）', tier:'silver', picks:[ 'ADAPt','Warm-Up Routine' /* 可替換 */, 'Trailblazer' /* 如需 */] },
+      { label:'Round 2（建議：金）', tier:'gold',   picks:[ 'Giant Slayer','Tormentor','Perseverance' ] },
+      { label:'Round 3（金 / 棱彩）', tier:'prismatic', picks:[ 'Raid Boss','Spirit Link','Stats on Stats!' ] /* 如需，你可替換 */ },
+      { label:'Round 4（棱彩）',     tier:'prismatic', picks:[ 'Wisdom of Ages','Celestial Body','Unkillable Demon King' ] /* 視實裝可調 */ },
+    ],
+  };
+
+  // ========= UI =========
+  const $roleList = document.getElementById('roleList');
+  const $search   = document.getElementById('search');
+  const $heroGrid = document.getElementById('heroGrid');
+  const $title    = document.getElementById('currentPlanTitle');
+  const $rounds   = document.getElementById('rounds');
+  const $copyBtn  = document.getElementById('copyBtn');
+  const $exportBtn= document.getElementById('exportBtn');
+
   function renderRoles(){
-    roleList.innerHTML = Object.keys(ROLE_PLANS).map(key => {
-      const cfg = ROLE_PLANS[key];
+    $roleList.innerHTML = Object.keys(ROLE_META).map(key=>{
       const active = state.role===key;
+      const meta = ROLE_META[key];
       return `
-        <button data-role="${key}" class="role-chip ${active?'active':''}">
-          <div class="rounded-xl p-4 text-white" style="background-image:linear-gradient(to right,var(--c1),var(--c2)); --c1: var(--c1-${key},#6366f1); --c2: var(--c2-${key},#0ea5e9);">
-            <div class="text-base font-semibold">${cfg.label}</div>
-            <div class="text-xs opacity-90 mt-1">推薦英雄：${cfg.heroes.slice(0,6).join('、')}${cfg.heroes.length>6?'…':''}</div>
-          </div>
+        <button class="role-chip tap ${active?'active':''}" data-role="${key}">
+          <div style="width:10px; height:10px; border-radius:50%; margin-right:10px; background: radial-gradient(circle at 30% 30%, ${meta.colors[0]}, ${meta.colors[1]})"></div>
+          <div style="font-weight:700">${meta.label}</div>
         </button>`;
     }).join('');
-
-    // 綁定點擊
-    Array.from(roleList.querySelectorAll('[data-role]')).forEach(btn=>{
-      btn.addEventListener('click',()=>{
+    $roleList.querySelectorAll('[data-role]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
         state.role = btn.getAttribute('data-role');
         renderAll();
       });
     });
   }
 
-  function renderHeroes(){
-    const q = (search.value||'').trim().toLowerCase();
-    const data = !q ? ALL_HEROES : ALL_HEROES.filter(h => h.name.toLowerCase().includes(q));
-    heroList.innerHTML = data.map(h=>{
-      const active = state.hero===h.name;
-      return `<button data-hero="${h.name}" class="w-full text-left rounded-xl border px-3 py-2 text-sm hover:bg-slate-50 ${active?'ring-2 ring-offset-2 ring-black':''}">
-        <div class="flex items-center justify-between">
-          <span>${h.name}</span>
-          <span class="pill">${ROLE_PLANS[h.role].label}</span>
-        </div>
-      </button>`;
-    }).join('');
+  function buildHeroCard(h){
+    const icon1 = h.icons[0], icon2 = h.icons[1], fallback = h.icons[2];
+    // onerror fallback鏈
+    return `
+      <button class="hero tap" data-hero="${h.key}">
+        <img loading="lazy" alt="${h.tw} / ${h.en}" src="${icon1}"
+             onerror="if(this.src.indexOf('meta/images')>-1){this.src='${icon2}'}else if(this.src.indexOf('/images/lol/champion/')>-1){this.src='${fallback}'}" />
+        <div class="nm">${h.tw}</div>
+        <div class="en">${h.en}</div>
+      </button>
+    `;
+  }
 
-    Array.from(heroList.querySelectorAll('[data-hero]')).forEach(btn=>{
-      btn.addEventListener('click',()=>{
-        const h = btn.getAttribute('data-hero');
-        const found = ALL_HEROES.find(x=>x.name===h);
-        if(found){ state.hero = h; state.role = found.role; renderAll(); }
+  function renderHeroes(){
+    const q = ($search.value||'').trim().toLowerCase();
+    const list = state.champions
+      .filter(c=> !q || c.tw.toLowerCase().includes(q) || c.en.toLowerCase().includes(q))
+      .filter(c=> {
+        // 顯示全部英雄，但若想只看某類型，可在此加上：return TAG2ROLE[c.tags?.[0]]===state.role
+        return true;
+      });
+    $heroGrid.innerHTML = list.map(buildHeroCard).join('');
+    $heroGrid.querySelectorAll('[data-hero]').forEach(btn=>{
+      btn.addEventListener('click', ()=>{
+        const key = btn.getAttribute('data-hero');
+        const obj = state.champions.find(x=>x.key===key);
+        if(!obj) return;
+        state.heroKey = obj.key; state.heroNameTw = obj.tw; state.role = obj.role;
+        renderAll();
       });
     });
   }
 
-  function renderRounds(){
-    const plan = ROLE_PLANS[state.role];
-    currentPlanTitle.textContent = `${plan.label}｜${state.hero}`;
-    roundsEl.innerHTML = plan.rounds.map(r=>{
-      const picks = r.picks.map(p=>`
-        <div class="rounded-xl border px-3 py-2 bg-white flex flex-col gap-1">
-          <div class="flex items-center justify-between">
-            <span class="font-medium text-sm tooltip">${p.tw}<span class="tip">${p.en}</span></span>
-            ${badgeTier(p.tier)}
+  function findAug(nameEn){
+    return AUGMENTS.find(a=>a.en===nameEn);
+  }
+
+  function renderPlan(){
+    const hero = state.champions.find(x=>x.key===state.heroKey);
+    const heroNameTw = hero? hero.tw : (state.heroNameTw||'');
+    const role = hero? hero.role : state.role;
+    const flow = ROLE_PLANS[role]||[];
+    $title.textContent = `${ROLE_META[role]?.label || role}｜${heroNameTw || '—'}`;
+    $rounds.innerHTML = flow.map(round=>{
+      const tier = round.tier;
+      const badge = `<span class="badge ${tier==='silver'?'silver': tier==='gold'?'gold':'prismatic'}">${tier.toUpperCase()}</span>`;
+      const items = round.picks.map(en=>{
+        const a = findAug(en) || {en, tw: en, tier, note:''};
+        const smallBadge = `<span class="badge ${a.tier==='silver'?'silver': a.tier==='gold'?'gold':'prismatic'}">${(a.tier||tier).toUpperCase()}</span>`;
+        return `
+          <div class="pick">
+            <div class="head">
+              <div class="tt"><span class="tw">${a.tw}</span><div class="ttip">${a.en}</div></div>
+              ${smallBadge}
+            </div>
+            ${a.note ? `<div class="tip">${a.note}</div>` : ``}
           </div>
-          ${p.note?`<p class="text-xs text-slate-600">${p.note}</p>`:''}
-        </div>
-      `).join('');
+        `;
+      }).join('');
       return `
-        <div class="card p-4">
-          <div class="flex items-center justify-between mb-3">
-            <h3 class="text-sm font-semibold">${r.label}</h3>
-            ${badgeTier(r.tier)}
+        <div class="card pad round-card">
+          <div class="row" style="margin-bottom:8px">
+            <div class="section-title">${round.label}</div>
+            ${badge}
           </div>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-2">${picks}</div>
-        </div>`;
+          <div class="picks">${items}</div>
+        </div>
+      `;
     }).join('');
   }
 
   function copyPlan(){
-    const plan = ROLE_PLANS[state.role];
+    const hero = state.champions.find(x=>x.key===state.heroKey);
+    const role = hero? hero.role : state.role;
+    const plan = ROLE_PLANS[role]||[];
     const lines = [];
-    lines.push(`【${plan.label}｜${state.hero}】ARAM Mayhem 推薦增幅`);
-    plan.rounds.forEach(r=>{ lines.push(`- ${r.label}：`+ r.picks.map(p=>`${p.tw}(${p.en})`).join(' / ')); });
-    lines.push('— 依 2025-10 PBE/社群彙整，實戰以當前版本為準');
+    lines.push(`【${ROLE_META[role]?.label||role}｜${hero?hero.tw:'—'}】ARAM Mayhem 推薦增幅`);
+    plan.forEach(r=>{
+      lines.push(`- ${r.label}：` + r.picks.map(en=>{
+        const a = findAug(en)||{en,tw:en}; return `${a.tw}(${a.en})`;
+      }).join(' / '));
+    });
+    lines.push('— 依 2025-10 社群彙整（Mobalytics），實戰以當前版本為準');
     navigator.clipboard.writeText(lines.join('\n'));
-    copyBtn.textContent = '已複製';
-    setTimeout(()=>copyBtn.textContent='複製當前方案',1200);
+    $copyBtn.textContent = '已複製';
+    setTimeout(()=>{$copyBtn.textContent='複製當前方案'}, 1200);
   }
-
   function exportJSON(){
-    const blob = new Blob([JSON.stringify(ROLE_PLANS,null,2)],{type:'application/json'});
+    const blob = new Blob([JSON.stringify({version:state.version, champions:state.champions, augments:AUGMENTS}, null, 2)], {type:'application/json'});
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url; a.download = 'aram-mayhem-tw-role-plans.json'; a.click();
+    const a = document.createElement('a'); a.href = url; a.download = 'aram-mayhem-full.tw.json'; a.click();
     URL.revokeObjectURL(url);
   }
 
-  function renderAll(){ renderRoles(); renderHeroes(); renderRounds(); }
+  function renderAll(){
+    renderRoles(); renderHeroes(); renderPlan();
+  }
 
-  // 事件
-  search.addEventListener('input', renderHeroes);
-  copyBtn.addEventListener('click', copyPlan);
-  exportBtn.addEventListener('click', exportJSON);
+  // 綁事件
+  document.getElementById('copyBtn').addEventListener('click', copyPlan);
+  document.getElementById('exportBtn').addEventListener('click', exportJSON);
+  document.getElementById('search').addEventListener('input', renderHeroes);
 
-  // 初始渲染
-  renderAll();
+  // 啟動
+  loadChampions().catch(err=>{
+    console.error(err);
+    // 若 DDragon 無法載入，至少不讓頁面掛掉
+    state.version = 'latest';
+    state.champions = [];
+    renderAll();
+  });
   </script>
 </body>
 </html>
