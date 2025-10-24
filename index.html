@@ -3,18 +3,16 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ARAM Mayhem 台版增幅速查表（重製版）</title>
-  <meta name="description" content="英雄聯盟 ARAM: Mayhem 增幅（Augments）台版譯名速查表與建議（依英雄類型）。單檔可直接部署至 GitHub Pages / Cloudflare Pages。">
+  <title>ARAM Mayhem 台版增幅速查表（穩定版）</title>
+  <meta name="description" content="英雄聯盟 ARAM: Mayhem 增幅（Augments）台版譯名速查表與建議。純前端單檔，可直接部署 GitHub Pages / Cloudflare Pages。">
 
-  <!-- ===== 純原生 CSS（避免外部框架造成樣式衝突） ===== -->
   <style>
     :root{
-      --bg:#0b1020; --bg-2:#0f1430;
-      --card:#0e1631; --card-2:#0b142b;
-      --line:#223056; --line-2:#2d3c6b;
+      --bg:#0b1020; --bg2:#0f1430;
+      --card:#0e1631; --card2:#0b142b;
+      --line:#223056; --line2:#2d3c6b;
       --txt:#e7eeff; --muted:#9bb1da;
-      --accent:#00e0ff; --accent-2:#ff3d78; --accent-3:#7c4dff;
-      --ok:#22d3a6; --warn:#ffd166;
+      --accent:#00e0ff; --accent2:#ff3d78; --accent3:#7c4dff;
       --radius:14px;
     }
     *{box-sizing:border-box}
@@ -30,7 +28,7 @@
     }
     header{
       position:sticky; top:0; z-index:20;
-      background: rgba(11,16,32,.78);
+      background: rgba(11,16,32,.8);
       border-bottom:1px solid var(--line);
       backdrop-filter: blur(8px);
     }
@@ -63,19 +61,19 @@
     .role-chip.active{outline:2px solid var(--accent); box-shadow: 0 0 0 4px rgba(0,224,255,.12)}
 
     .hero-grid{display:grid; gap:10px; grid-template-columns: repeat(auto-fill, minmax(104px, 1fr))}
-    .hero{display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center; border:1px solid var(--line); border-radius:12px; padding:10px; background:#0b132b; cursor:pointer; min-height:44px}
+    .hero{display:flex; flex-direction:column; gap:6px; align-items:center; text-align:center; border:1px solid var(--line); border-radius:12px; padding:10px; background:#0b132b; cursor:pointer}
     .hero:hover{border-color:var(--accent)}
     .hero img{width:80px; aspect-ratio:1/1; border-radius:10px; display:block; background:#0d1838; object-fit:cover}
     .hero .nm{font-size:12px; line-height:1.2; word-break:break-word}
     .hero .en{font-size:10px; color:var(--muted)}
 
     .rounds{display:grid; gap:16px}
-    .badge{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line-2); padding:3px 8px; border-radius:999px; font-size:11px; color:#cfe2ff}
+    .badge{display:inline-flex; align-items:center; gap:6px; border:1px solid var(--line2); padding:3px 8px; border-radius:999px; font-size:11px; color:#cfe2ff}
     .silver{background:linear-gradient(180deg, #18243e,#131b33)}
     .gold{background:linear-gradient(180deg, #3a300f,#241d09); color:#ffe39e; border-color:#6b5418}
     .prismatic{background:linear-gradient(180deg, #2b1640,#170b2b); color:#ead4ff; border-color:#6b2aaa}
 
-    /* Round 內部網格：保證卡片在正確位置且高度一致 */
+    /* 每輪的增幅網格：一定排好且高度一致 */
     .round-card .picks{
       display:grid; gap:10px;
       grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
@@ -101,7 +99,7 @@
   <header>
     <div class="wrap row">
       <div>
-        <h1>ARAM Mayhem 台版增幅速查表（重製版）</h1>
+        <h1>ARAM Mayhem 台版增幅速查表（穩定版）</h1>
         <div class="sub">全英雄（繁中名＋縮圖）／全增幅（台版譯名優先＋英名 tooltip）／行動優化</div>
       </div>
       <div class="row" style="gap:8px">
@@ -162,18 +160,18 @@
   </footer>
 
   <script>
-  // ===== 角色定義與對應色 =====
+  // ===== 角色定義 =====
   const ROLE_META = {
-    mage:     { label:'法師 Mage',        colors:['#3d46ff','#00e0ff'] },
-    assassin: { label:'刺客 Assassin',     colors:['#ff3d78','#f093fb'] },
-    tank:     { label:'坦克 / 肉 Bruiser', colors:['#05d47a','#bafc8b'] },
-    adc:      { label:'射手 Marksman',     colors:['#ffb020','#ff3d78'] },
-    support:  { label:'輔助 Enchanter',    colors:['#00e0ff','#7c4dff'] },
-    fighter:  { label:'鬥士 Fighter',      colors:['#00ffa3','#00e0ff'] }, // DDragon tag 轉換用
+    mage:     { label:'法師 Mage' },
+    assassin: { label:'刺客 Assassin' },
+    tank:     { label:'坦克 / 肉 Bruiser' },
+    adc:      { label:'射手 Marksman' },
+    support:  { label:'輔助 Enchanter' },
+    fighter:  { label:'鬥士 Fighter' }, // 關鍵補上
   };
   const TAG2ROLE = { Mage:'mage', Assassin:'assassin', Tank:'tank', Marksman:'adc', Support:'support', Fighter:'fighter' };
 
-  // ===== 官方／通行 台版譯名（英→繁） =====
+  // ===== 官方/通行 台版譯名（英→繁） =====
   const OFFICIAL_TW = {
     "Transmute: Prismatic":"質變：稜鏡","Transmute: Gold":"質變：金級","Transmute: Chaos":"質變：大混亂",
     "Jeweled Gauntlet":"寶石手套","Thread the Needle":"穿針引線","Goliath":"巨人","Giant Slayer":"巨人殺手",
@@ -187,8 +185,7 @@
     "Ethereal Weapon":"以太武裝","Windspeaker's Blessing":"風語者的祝福","Spiritual Purification":"靈能淨化","Searing Dawn":"曙光灼燒",
     "With Haste":"腳程加速","Leg Day":"腿部訓練日","Flashy":"閃現達人","Snowball Upgrade":"雪球升級",
     "Biggest Snowball Ever":"巨無霸雪球","Fetch":"你丟我撿","Shadow Runner":"影行者","Swift and Safe":"疾衝護身",
-    "All for You":"全力支援","Executioner":"處決者","It’s Critical":"就是要爆","It's Critical":"就是要爆",
-    "It’s Killing Time":"殺戮時間","It's Killing Time":"殺戮時間","From Beginning to End":"始終如一",
+    "All for You":"全力支援","Executioner":"處決者","It's Critical":"就是要爆","It's Killing Time":"殺戮時間","From Beginning to End":"始終如一",
     "Minionmancer":"傀儡增幅","Rabble Rousing":"群起鬥毆","Restless Restoration":"移動療癒","Overflow":"溢流",
     "Skilled Sniper":"神射手訓練","Slow and Steady":"慢即是穩","Snowball Roulette":"雪球輪盤","Stats on Stats!":"疊上加疊！",
     "Quest: Steel Your Heart":"任務：心鋼起來","Quest: Wooglet’s Witchcap":"任務：烏莉特的法帽","Quest: Urf’s Champion":"任務：阿福英雄",
@@ -204,7 +201,7 @@
     "Wisdom of Ages":"歲月智慧"
   };
 
-  // ===== 常用增幅（顯示時會套 OFFICIAL_TW；此表只放你方案會用到的）=====
+  // ===== 增幅（顯示時會先用 OFFICIAL_TW；找不到再用 tw） =====
   const AUGMENTS = [
     // Silver
     {en:'ADAPt',               tw:'AD 轉術',       tier:'silver',  note:'AD→AP 混傷加成 + 額外 AP'},
@@ -263,7 +260,7 @@
     {en:'Goldrend',            tw:'淘金者',         tier:'prismatic', note:'命中給移速與金幣（對同一人有 CD）'}
   ];
 
-  // ===== 類型推薦（固定順序，確保「位置」不被動態排序打亂）=====
+  // ===== 方案（新增 fighter；並加入穩健回退） =====
   const ROLE_PLANS = {
     mage: [
       { label:'Round 1（建議：銀）',  picks:[ 'ADAPt','Witchful Thinking','Frost Wraith' ] },
@@ -295,13 +292,20 @@
       { label:'Round 3（金 / 棱彩）', picks:[ 'Empyrean Promise','Divine Intervention',"Windspeaker's Blessing" ] },
       { label:'Round 4（棱彩）',      picks:[ "Windspeaker's Blessing",'Final Form','Omni Soul' ] },
     ],
+    // 🔥 新增：鬥士（Fighter）
+    fighter: [
+      { label:'Round 1（建議：銀）',  picks:[ 'Adamant','The Brutalizer','Mighty Shield' ] },
+      { label:'Round 2（建議：金）',  picks:[ 'Perseverance','Executioner','Tank Engine' ] },
+      { label:'Round 3（金 / 棱彩）', picks:[ 'Courage of the Colossus','Goliath','Final Form' ] },
+      { label:'Round 4（棱彩）',      picks:[ 'Back to Basics','Omni Soul','Final Form' ] },
+    ],
   };
 
   // ===== 狀態 =====
   const state = {
     role:'mage',
-    heroKey:null, heroNameTw:null,
-    version:null, champions:[] // {key,en,tw,role,tags,icons:[opgg,opggAlt,ddragon]}
+    heroKey:null, heroNameTw:'—',
+    version:null, champions:[]
   };
 
   // ===== DOM =====
@@ -313,7 +317,7 @@
   const $copyBtn   = document.getElementById('copyBtn');
   const $exportBtn = document.getElementById('exportBtn');
 
-  // ===== OP.GG 圖示與 Fallback =====
+  // ===== 圖示路徑與 Fallback =====
   function deriveOpggName(imageFull){
     let base = (imageFull||'').replace(/\.png$/i,'');
     const map = {
@@ -327,25 +331,32 @@
   const opggAlt     = (name) => `https://opgg-static.akamaized.net/images/lol/champion/${name}.png`;
   const ddragonIcon = (ver, full) => `https://ddragon.leagueoflegends.com/cdn/${ver}/img/champion/${full}`;
 
-  // ===== 載入英雄（最新 DDragon + zh_TW）=====
+  // ===== 載入英雄（DDragon） =====
   async function loadChampions(){
-    const ver = await fetch('https://ddragon.leagueoflegends.com/api/versions.json').then(r=>r.json()).then(a=>a[0]);
-    state.version = ver;
-    const data = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ver}/data/zh_TW/champion.json`).then(r=>r.json());
-    const champs = Object.values(data.data);
-    state.champions = champs.map(c=>{
-      const role = TAG2ROLE[c.tags?.[0]] || 'fighter';
-      const op = deriveOpggName(c.image.full);
-      return {
-        key: c.id, en: c.id, tw: c.name, role, tags: c.tags||[],
-        icons: [opggPrimary(op), opggAlt(op), ddragonIcon(ver, c.image.full)]
-      };
-    }).sort((a,b)=> a.tw.localeCompare(b.tw,'zh-Hant'));
-    if(!state.heroKey){ state.heroKey = state.champions[0].key; state.heroNameTw = state.champions[0].tw; }
-    renderAll();
+    try{
+      const ver = await fetch('https://ddragon.leagueoflegends.com/api/versions.json').then(r=>r.json()).then(a=>a[0]);
+      state.version = ver;
+      const data = await fetch(`https://ddragon.leagueoflegends.com/cdn/${ver}/data/zh_TW/champion.json`).then(r=>r.json());
+      const champs = Object.values(data.data);
+      state.champions = champs.map(c=>{
+        const role = TAG2ROLE[c.tags?.[0]] || 'fighter';
+        const op = deriveOpggName(c.image.full);
+        return {
+          key: c.id, en: c.id, tw: c.name, role, tags: c.tags||[],
+          icons: [opggPrimary(op), opggAlt(op), ddragonIcon(ver, c.image.full)]
+        };
+      }).sort((a,b)=> a.tw.localeCompare(b.tw,'zh-Hant'));
+
+      // 預設英雄：若第一個是 Fighter，也能顯示（已補方案）
+      if(!state.heroKey){ state.heroKey = state.champions[0].key; state.heroNameTw = state.champions[0].tw; }
+      renderAll();
+    }catch(e){
+      console.warn('載入英雄失敗，改以本地預設方案顯示。', e);
+      renderAll(); // 仍顯示預設 mage 方案
+    }
   }
 
-  // ===== 小工具 =====
+  // ===== 工具 =====
   function findAug(en){ return AUGMENTS.find(a=>a.en===en) || {en, tw: en, tier:'silver', note:''}; }
   function showName(en, tw){ return OFFICIAL_TW[en] || tw; }
   function tierBadge(t){
@@ -359,19 +370,23 @@
     return uniq.map(t=>tierBadge(t)).join(' ');
   }
 
+  function getRoleForCurrentHero(){
+    const hero = state.champions.find(x=>x.key===state.heroKey);
+    let derived = hero ? (TAG2ROLE[hero.tags?.[0]] || 'fighter') : state.role;
+    if(!ROLE_PLANS[derived]) derived = state.role;        // 先用左側選擇
+    if(!ROLE_PLANS[derived]) derived = 'mage';            // 最終保險：法師
+    return { role: derived, heroName: hero ? hero.tw : state.heroNameTw };
+  }
+
   // ===== 渲染 =====
   function renderRoles(){
-    $roleList.innerHTML = Object.keys(ROLE_META).map(key=>{
-      const active = state.role===key; const meta = ROLE_META[key];
-      return `
-        <button class="role-chip ${active?'active':''}" data-role="${key}">
-          <div style="display:flex;align-items:center;gap:10px">
-            <div style="width:10px;height:10px;border-radius:50%;background: radial-gradient(circle at 30% 30%, ${meta.colors[0]}, ${meta.colors[1]})"></div>
-            <div style="font-weight:700">${meta.label}</div>
-          </div>
-        </button>`;
+    // 固定五類 + fighter（共六顆）
+    const order = ['mage','assassin','tank','adc','support','fighter'];
+    document.getElementById('roleList').innerHTML = order.map(key=>{
+      const active = state.role===key;
+      return `<button class="role-chip ${active?'active':''}" data-role="${key}"><div style="font-weight:700">${ROLE_META[key].label}</div></button>`;
     }).join('');
-    $roleList.querySelectorAll('[data-role]').forEach(btn=>{
+    document.querySelectorAll('[data-role]').forEach(btn=>{
       btn.addEventListener('click', ()=>{ state.role = btn.getAttribute('data-role'); renderAll(); });
     });
   }
@@ -389,10 +404,11 @@
   }
 
   function renderHeroes(){
-    const q = ($search.value||'').trim().toLowerCase();
+    const q = (document.getElementById('search').value||'').trim().toLowerCase();
     const list = state.champions.filter(c=> !q || c.tw.toLowerCase().includes(q) || c.en.toLowerCase().includes(q));
-    $heroGrid.innerHTML = list.map(buildHeroCard).join('');
-    $heroGrid.querySelectorAll('[data-hero]').forEach(btn=>{
+    const html = list.map(buildHeroCard).join('');
+    document.getElementById('heroGrid').innerHTML = html || '<div class="tip">（尚未載入英雄或沒有符合的搜尋結果）</div>';
+    document.querySelectorAll('[data-hero]').forEach(btn=>{
       btn.addEventListener('click', ()=>{
         const key = btn.getAttribute('data-hero');
         const obj = state.champions.find(x=>x.key===key);
@@ -404,14 +420,11 @@
   }
 
   function renderPlan(){
-    const hero = state.champions.find(x=>x.key===state.heroKey);
-    const role = hero? (TAG2ROLE[hero.tags?.[0]] || 'fighter') : state.role;
-    const flow = ROLE_PLANS[role]||[];
-    const heroNameTw = hero? hero.tw : (state.heroNameTw||'—');
-    const roleLabel = ROLE_META[role]?.label || role;
-    $title.textContent = `${roleLabel}｜${heroNameTw}`;
+    const { role, heroName } = getRoleForCurrentHero();
+    const flow = ROLE_PLANS[role];
+    document.getElementById('currentPlanTitle').textContent = `${ROLE_META[role].label}｜${heroName || '—'}`;
 
-    $rounds.innerHTML = flow.map(round=>{
+    const roundsHtml = flow.map(round=>{
       const picks = round.picks.map(en => findAug(en));
       const tiers = picks.map(p=>p.tier);
       const headerBadges = tierGroupBadge(tiers);
@@ -426,8 +439,7 @@
               ${tierBadge(a.tier)}
             </div>
             <div class="tip">${note}</div>
-          </div>
-        `;
+          </div>`;
       }).join('');
 
       return `
@@ -437,24 +449,24 @@
             <div>${headerBadges}</div>
           </div>
           <div class="picks">${items}</div>
-        </div>
-      `;
+        </div>`;
     }).join('');
+
+    document.getElementById('rounds').innerHTML = roundsHtml;
   }
 
   function copyPlan(){
-    const hero = state.champions.find(x=>x.key===state.heroKey);
-    const role = hero? (TAG2ROLE[hero.tags?.[0]] || 'fighter') : state.role;
-    const plan = ROLE_PLANS[role]||[];
+    const { role, heroName } = getRoleForCurrentHero();
+    const plan = ROLE_PLANS[role];
     const lines = [];
-    const heroNameTw = hero? hero.tw : (state.heroNameTw||'—');
-    lines.push(`【${ROLE_META[role]?.label||role}｜${heroNameTw}】ARAM Mayhem 推薦增幅（固定順序）`);
+    lines.push(`【${ROLE_META[role].label}｜${heroName||'—'}】ARAM Mayhem 推薦增幅（固定順序）`);
     plan.forEach(r=>{
       lines.push(`- ${r.label}：` + r.picks.map(en=>{ const a=findAug(en); return `${showName(a.en,a.tw)}(${a.en})`; }).join(' / '));
     });
     lines.push('— 名稱以台版常見譯名為準；實戰以客戶端顯示為最終');
     navigator.clipboard.writeText(lines.join('\n'));
-    $copyBtn.textContent='已複製'; setTimeout(()=>{$copyBtn.textContent='複製當前方案'},1200);
+    document.getElementById('copyBtn').textContent='已複製';
+    setTimeout(()=>document.getElementById('copyBtn').textContent='複製當前方案',1200);
   }
 
   function exportJSON(){
@@ -464,19 +476,16 @@
 
   function renderAll(){ renderRoles(); renderHeroes(); renderPlan(); }
 
-  // 綁事件
-  $copyBtn.addEventListener('click', copyPlan);
-  $exportBtn.addEventListener('click', exportJSON);
-  $search.addEventListener('input', renderHeroes);
+  // ✅ 先渲染預設方案，確保就算網路失敗也看得到增幅
+  renderAll();
 
-  // 啟動
-  loadChampions().catch(err=>{
-    console.error(err);
-    // 若 DDragon 無法載入，至少不讓頁面掛掉
-    state.version = 'latest';
-    state.champions = [];
-    renderAll();
-  });
+  // 綁事件
+  document.getElementById('copyBtn').addEventListener('click', copyPlan);
+  document.getElementById('exportBtn').addEventListener('click', exportJSON);
+  document.getElementById('search').addEventListener('input', renderHeroes);
+
+  // 再去載入英雄資料（成功會更新左側清單與標題，但右側增幅始終可見）
+  loadChampions();
   </script>
 </body>
 </html>
